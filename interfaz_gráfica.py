@@ -1,32 +1,25 @@
 import tkinter as tk
-from tkinter import filedialog, messagebox
-from tkinter import ttk
+from tkinter import filedialog, messagebox, ttk
 import pandas as pd
 import sqlite3
+import threading
 
 class DataLoaderApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Data Loader")
         
-        self.file_path_label = tk.Label(root, text="No file selected")
-        self.file_path_label.pack()
+        self.file_path_label = tk.Label(root, text="No file selected", font=("Helvetica", 12))
+        self.file_path_label.pack(pady=10)
         
-        self.load_button = tk.Button(root, text="Load Dataset", command=self.load_file)
-        self.load_button.pack()
+        self.load_button = tk.Button(root, text="Load Dataset", command=self.load_file, font=("Helvetica", 12))
+        self.load_button.pack(pady=10)
+
+        # Create the progress bar but keep it hidden initially
+        self.progress_bar = ttk.Progressbar(root, orient="horizontal", mode="determinate")
         
         self.data_frame = None
-        self.table = None
-
-    def is_valid_sqlite(self, file_path):
-        # Revisa el encabezado del archivo para ver si es una base de datos SQLite
-        try:
-            with open(file_path, 'rb') as file:
-                header = file.read(16)
-                return header == b'SQLite format 3\000'
-        except Exception as e:
-            print(f"Error checking file header: {e}")
-            return False
+        self.table_frame = None  # Frame for the table
 
     def load_file(self):
         file_types = [("CSV files", ".csv"), ("Excel files", ".xlsx .xls"), ("SQLite files", ".sqlite *.db")]
@@ -34,57 +27,87 @@ class DataLoaderApp:
         
         if file_path:
             self.file_path_label.config(text=file_path)
-            try:
-                if file_path.endswith('.csv'):
-                    self.data_frame = pd.read_csv(file_path)
-                elif file_path.endswith('.xlsx'):
-                    self.data_frame = pd.read_excel(file_path)
-                elif file_path.endswith('.xls'):
-                    self.data_frame = pd.read_excel(file_path, engine='xlrd')
-                elif file_path.endswith(('.sqlite', '.db')):
-                    # Verificar si el archivo es una base de datos SQLite válida
-                    if not self.is_valid_sqlite(file_path):
-                        raise ValueError("El archivo seleccionado no es una base de datos SQLite válida.")
-                    
-                    # Intentar conectar a la base de datos SQLite
-                    conn = sqlite3.connect(file_path)
-                    tables = pd.read_sql_query("SELECT name FROM sqlite_master WHERE type='table';", conn)
-                    table_name = tables['name'].iloc[0]  # Seleccionar el primer nombre de tabla
-                    print(f"Selected table: {table_name}")
-                    self.data_frame = pd.read_sql_query(f"SELECT * FROM \"{table_name}\"", conn)
-                    conn.close()
-                
-                # Verificar que el DataFrame no esté vacío
-                if not self.data_frame.empty:
-                    print("File loaded successfully")
-                    self.display_data()
-                else:
-                    raise ValueError("El archivo seleccionado está vacío o no contiene datos.")
-        
-            except Exception as e:
-                print(f"Error loading file: {e}")
-                messagebox.showerror("Error", f"Failed to load file: {e}")
+            self.progress_bar.pack(fill=tk.X, padx=10, pady=10)  # Show the progress bar
+            self.progress_bar.start()  # Start the progress bar
+
+            # Use a thread to avoid freezing the interface
+            threading.Thread(target=self.load_data, args=(file_path,)).start()
+
+    def load_data(self, file_path):
+        try:
+            extension = file_path.split('.')[-1].lower()
+
+            if extension == 'csv':
+                self.data_frame = pd.read_csv(file_path)
+            elif extension in ['xlsx', 'xls']:
+                self.data_frame = pd.read_excel(file_path, engine='openpyxl')
+            elif extension in ['sqlite', 'db']:
+                conn = sqlite3.connect(file_path)
+                tables = pd.read_sql_query("SELECT name FROM sqlite_master WHERE type='table';", conn)
+                table_name = tables['name'].iloc[0]
+                self.data_frame = pd.read_sql_query(f"SELECT * FROM \"{table_name}\"", conn)
+                conn.close()
+            else:
+                raise ValueError("Unsupported file type.")
+
+            # Additional validations for DataFrame
+            if self.data_frame.empty:
+                raise ValueError("The selected file is empty or contains no data.")
+            
+            # Validate that the columns contain the expected data types
+            if not all(isinstance(val, (int, float, str)) for col in self.data_frame.columns for val in self.data_frame[col]):
+                raise ValueError("The file contains invalid or malformed data.")
+
+            self.root.after(0, self.display_data)  # Call display_data in the main thread
+            self.root.after(0, self.show_success_message)  # Show success message
+        except Exception as e:
+            self.root.after(0, lambda: self.show_error_message(str(e)))  # Error handling in the main thread
+        finally:
+            self.progress_bar.stop()  # Stop the progress bar
+            self.progress_bar.pack_forget()  # Hide the progress bar
 
     def display_data(self):
-        if self.table:
-            self.table.destroy()  # Destruir el Treeview existente si ya hay uno
+        # Destroy the existing frame and its elements if there is one
+        if self.table_frame:
+            self.table_frame.destroy()
         
-        self.table = ttk.Treeview(self.root)
+        # Create a new frame for the table and scrollbars
+        self.table_frame = tk.Frame(self.root)
+        self.table_frame.pack(fill=tk.BOTH, expand=True)
+
+        # Create scrollbars
+        vsb = ttk.Scrollbar(self.table_frame, orient="vertical")
+        vsb.pack(side='right', fill='y')
+
+        hsb = ttk.Scrollbar(self.table_frame, orient="horizontal")
+        hsb.pack(side='bottom', fill='x')
+
+        # Create the Treeview
+        self.table = ttk.Treeview(self.table_frame, yscrollcommand=vsb.set, xscrollcommand=hsb.set)
         self.table.pack(fill=tk.BOTH, expand=True)
         
+        vsb.config(command=self.table.yview)
+        hsb.config(command=self.table.xview)
+
         self.table["columns"] = list(self.data_frame.columns)
         self.table["show"] = "headings"
         
         for col in self.data_frame.columns:
             self.table.heading(col, text=col)
-            self.table.column(col, width=100)
+            self.table.column(col, width=100)  # You can adjust the width of the columns here
         
         for _, row in self.data_frame.iterrows():
             self.table.insert("", "end", values=list(row))
         
         print("Data displayed successfully")
 
+    def show_success_message(self):
+        messagebox.showinfo("Success", "File loaded successfully.")
+
+    def show_error_message(self, message):
+        messagebox.showerror("Error", message)
+
 if __name__ == "__main__":
-    root = tk.Tk()  # Crear ventana principal de Tkinter
-    app = DataLoaderApp(root)  # Crear instancia de la aplicación
-    root.mainloop()  # Iniciar el bucle principal de la interfaz
+    root = tk.Tk()  # Create the main Tkinter window
+    app = DataLoaderApp(root)  # Create an instance of the application
+    root.mainloop()  # Start the main loop of the interface
