@@ -1,34 +1,31 @@
 
-import dearpygui.dearpygui as dpg
+import tkinter as tk
+from tkinter import messagebox
 
-# Función que se ejecuta al presionar el botón
-def mostrar_mensaje(sender, app_data, user_data):
-    # Obtenemos el texto ingresado en el cuadro de texto
-    texto_ingresado = dpg.get_value(user_data)
-    # Mostramos el texto en la consola o un mensaje dentro de la GUI
-    print(f"Texto ingresado: {texto_ingresado}")
-    dpg.set_value("mensaje_texto", f"Has ingresado: {texto_ingresado}")
+# Crear la ventana principal
+root = tk.Tk()
 
-# Iniciar la ventana principal
-dpg.create_context()
+# Establecer el título de la ventana
+root.title("Ventana Simple con Tkinter")
 
-# Crear la ventana
-with dpg.window(label="Ventana Principal", width=400, height=300):
-    
-    # Cuadro de texto para ingresar datos
-    dpg.add_input_text(label="Ingresa algo aquí", tag="cuadro_texto")
-    
-    # Botón que al presionar muestra el mensaje
-    dpg.add_button(label="Mostrar Mensaje", callback=mostrar_mensaje, user_data="cuadro_texto")
-    
-    # Campo donde se mostrará el mensaje al presionar el botón
-    dpg.add_text("", tag="mensaje_texto")
+# Establecer las dimensiones de la ventana
+root.geometry("300x200")
 
-# Configurar y mostrar la ventana
-dpg.create_viewport(title="Interfaz Gráfica con DearPyGui", width=600, height=400)
-dpg.setup_dearpygui()
-dpg.show_viewport()
-dpg.start_dearpygui()
+# Función que se ejecutará al presionar el botón
+def mostrar_mensaje():
+    mensaje = entrada.get()  # Obtener el texto ingresado en el cuadro de texto
+    if mensaje:
+        messagebox.showinfo("Mensaje", f"Has escrito: {mensaje}")
+    else:
+        messagebox.showwarning("Advertencia", "El cuadro de texto está vacío")
 
-# Limpiar al cerrar
-dpg.destroy_context()
+# Crear un cuadro de texto donde el usuario puede ingresar datos
+entrada = tk.Entry(root, width=30)
+entrada.pack(pady=10)
+
+# Crear un botón que mostrará el mensaje
+boton = tk.Button(root, text="Mostrar mensaje", command=mostrar_mensaje)
+boton.pack(pady=10)
+
+# Ejecutar el loop principal para mostrar la ventana
+root.mainloop()
