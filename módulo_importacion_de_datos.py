@@ -102,6 +102,3 @@ def main():
         leer_sqlite(ruta_archivo)
     else:
         print("formato de archivo no soportado. por favor, elija un archivo csv, excel o sqlite.")
-
-if __name__ == "__main__":
-    main()
