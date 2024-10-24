@@ -8,15 +8,46 @@ class DataLoaderApp:
         self.root = root
         self.root.title("Data Loader")
         
-        self.file_path_label = tk.Label(root, text="No file selected", font=("Helvetica", 12))
-        self.file_path_label.pack(pady=10)
-        
-        self.load_button = tk.Button(root, text="Load Dataset", command=self.load_file, font=("Helvetica", 12))
-        self.load_button.pack(pady=10)
+        # Configuración del fondo blanco
+        self.root.configure(bg="white")
 
-        # Crear la barra de progreso, inicialmente oculta
-        self.progress_bar = ttk.Progressbar(root, orient="horizontal", mode="determinate")
+        # Fuente más gruesa y minimalista
+        self.font_style = ("Helvetica", 12)  # Cambiamos a una fuente más gruesa
         
+        # Etiqueta para mostrar la ruta del archivo
+        self.file_path_label = tk.Label(root, text="No file selected", font=self.font_style, 
+                                        bg="white", fg="black")
+        self.file_path_label.pack(pady=10)
+
+        # Crear un frame para centrar el botón
+        button_frame = tk.Frame(root, bg="white")
+        button_frame.pack(pady=10)
+
+        # Crear un botón moderno y minimalista con esquinas redondeadas
+        self.load_button = tk.Button(button_frame, text="Load File", command=self.load_file, 
+                                     font=self.font_style, bg="#007BFF", fg="white", 
+                                     activebackground="#0056b3", bd=0, padx=20, pady=10)
+        self.load_button.pack()  # Colocar el botón en el frame
+
+        # Aplicar un estilo redondeado al botón
+        self.load_button.config(relief="flat", overrelief="flat", highlightthickness=0, borderwidth=0)
+        self.load_button.config(highlightbackground="white", highlightcolor="white")
+
+        # Añadimos el estilo de la barra de progreso con colores minimalistas
+        self.progress_bar = ttk.Progressbar(root, orient="horizontal", mode="determinate", 
+                                            length=300, style="TProgressbar")
+
+        # Ajustes de la barra de progreso
+        style = ttk.Style()
+        style.configure("TProgressbar", thickness=5, troughcolor="white", 
+                        background="#007BFF", troughrelief="flat")
+
+        # Modernizamos la tabla con estilos de Treeview
+        style.configure("Treeview.Heading", font=("Helvetica", 12), background="#f0f0f0", 
+                        foreground="black", borderwidth=1)
+        style.configure("Treeview", font=("Helvetica", 10), rowheight=25, fieldbackground="white")
+        style.map("Treeview", background=[("selected", "#007BFF")], foreground=[("selected", "white")])
+
         self.data_frame = None
         self.table_frame = None  # Frame para la tabla
 
@@ -40,8 +71,13 @@ class DataLoaderApp:
             # Verificar si se cargó correctamente y mostrar los datos
             self.root.after(0, self.display_data)
             self.root.after(0, self.show_success_message)
+        except ValueError as e:
+            error_message = str(e)  # Capturar el mensaje de error para evitar problemas con lambda
+            self.root.after(0, lambda: self.show_error_message(error_message))
         except Exception as e:
-            self.root.after(0, lambda: self.show_error_message(str(e)))  # Manejo de errores
+            # Captura cualquier otro tipo de error inesperado
+            error_message = f"Error inesperado: {str(e)}"
+            self.root.after(0, lambda: self.show_error_message(error_message))
         finally:
             self.progress_bar.stop()  # Detener la barra de progreso
             self.progress_bar.pack_forget()  # Ocultar la barra de progreso
@@ -51,39 +87,41 @@ class DataLoaderApp:
         if self.table_frame:
             self.table_frame.destroy()
         
-        # Crear un nuevo frame para la tabla y scrollbars
-        self.table_frame = tk.Frame(self.root)
+        # Crear un nuevo frame para la tabla
+        self.table_frame = tk.Frame(self.root, bg="white")
         self.table_frame.pack(fill=tk.BOTH, expand=True)
-
-        # Crear las scrollbars
+        
+        # Scrollbars
         vsb = ttk.Scrollbar(self.table_frame, orient="vertical")
         vsb.pack(side='right', fill='y')
 
         hsb = ttk.Scrollbar(self.table_frame, orient="horizontal")
         hsb.pack(side='bottom', fill='x')
-
-        # Crear el Treeview
-        self.table = ttk.Treeview(self.table_frame, yscrollcommand=vsb.set, xscrollcommand=hsb.set)
-        self.table.pack(fill=tk.BOTH, expand=True)
         
+        # Crear la tabla
+        self.table = ttk.Treeview(self.table_frame, yscrollcommand=vsb.set, xscrollcommand=hsb.set, 
+                                  style="Treeview")
+        self.table.pack(fill=tk.BOTH, expand=True)
+
         vsb.config(command=self.table.yview)
         hsb.config(command=self.table.xview)
-
+        
         # Configurar las columnas del Treeview
         self.table["columns"] = list(self.data_frame.columns)
         self.table["show"] = "headings"
-        
+
         for col in self.data_frame.columns:
             self.table.heading(col, text=col)
-            self.table.column(col, width=100)  # Ajustar el ancho de las columnas
-        
+            self.table.column(col, anchor="center", width=100)
+
+        # Insertar datos
         for _, row in self.data_frame.iterrows():
             self.table.insert("", "end", values=list(row))
-        
+
         print("Data displayed successfully")
 
     def show_success_message(self):
-        messagebox.showinfo("Success", "File loaded successfully.")
+        messagebox.showinfo("Success", "Archivo cargado exitosamente.")
 
     def show_error_message(self, message):
         messagebox.showerror("Error", message)
