@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import filedialog, messagebox, ttk
+from tkinter import filedialog, messagebox, ttk, simpledialog
 import threading
 import modulo_importacion  # Importamos el módulo externo
 
@@ -12,7 +12,7 @@ class DataLoaderApp:
         self.root.configure(bg="white")
 
         # Fuente más gruesa y minimalista
-        self.font_style = ("Helvetica", 12)  # Cambiamos a una fuente más gruesa
+        self.font_style = ("Helvetica", 12)
         
         # Etiqueta para mostrar la ruta del archivo
         self.file_path_label = tk.Label(root, text="No file selected", font=self.font_style, 
@@ -27,29 +27,31 @@ class DataLoaderApp:
         self.load_button = tk.Button(button_frame, text="Load File", command=self.load_file, 
                                      font=self.font_style, bg="#007BFF", fg="white", 
                                      activebackground="#0056b3", bd=0, padx=20, pady=10)
-        self.load_button.pack()  # Colocar el botón en el frame
+        self.load_button.pack()
 
         # Aplicar un estilo redondeado al botón
         self.load_button.config(relief="flat", overrelief="flat", highlightthickness=0, borderwidth=0)
-        self.load_button.config(highlightbackground="white", highlightcolor="white")
 
-        # Añadimos el estilo de la barra de progreso con colores minimalistas
-        self.progress_bar = ttk.Progressbar(root, orient="horizontal", mode="determinate", 
-                                            length=300, style="TProgressbar")
+        # Añadir la barra de progreso
+        self.progress_bar = ttk.Progressbar(root, orient="horizontal", mode="determinate", length=300, style="TProgressbar")
 
-        # Ajustes de la barra de progreso
+        # Estilo de la barra de progreso
         style = ttk.Style()
-        style.configure("TProgressbar", thickness=5, troughcolor="white", 
-                        background="#007BFF", troughrelief="flat")
+        style.configure("TProgressbar", thickness=5, troughcolor="white", background="#007BFF", troughrelief="flat")
 
-        # Modernizamos la tabla con estilos de Treeview
-        style.configure("Treeview.Heading", font=("Helvetica", 12), background="#f0f0f0", 
-                        foreground="black", borderwidth=1)
+        # Modernizar la tabla con estilo Treeview
+        style.configure("Treeview.Heading", font=("Helvetica", 12), background="#f0f0f0", foreground="black", borderwidth=1)
         style.configure("Treeview", font=("Helvetica", 10), rowheight=25, fieldbackground="white")
         style.map("Treeview", background=[("selected", "#007BFF")], foreground=[("selected", "white")])
 
         self.data_frame = None
-        self.table_frame = None  # Frame para la tabla
+        self.table_frame = None
+
+        # Botón para manejar NaN
+        self.nan_button = tk.Button(button_frame, text="Handle Missing Values", command=self.handle_nan, 
+                                    font=self.font_style, bg="#28a745", fg="white", 
+                                    activebackground="#218838", bd=0, padx=20, pady=10)
+        self.nan_button.pack(pady=10)
 
     def load_file(self):
         file_types = [("CSV files", ".csv"), ("Excel files", ".xlsx .xls"), ("SQLite files", ".sqlite *.db")]
@@ -57,56 +59,45 @@ class DataLoaderApp:
         
         if file_path:
             self.file_path_label.config(text=file_path)
-            self.progress_bar.pack(fill=tk.X, padx=10, pady=10)  # Mostrar la barra de progreso
-            self.progress_bar.start()  # Iniciar la barra de progreso
+            self.progress_bar.pack(fill=tk.X, padx=10, pady=10)
+            self.progress_bar.start()
 
-            # Usar un hilo para evitar congelar la interfaz
-            threading.Thread(target=self.load_data, args=(file_path,)).start()
+            threading.Thread(target=self.process_import, args=(file_path,)).start()
 
-    def load_data(self, file_path):
+    def process_import(self, file_path):
         try:
-            # Llamamos a la función de importación desde el módulo
             self.data_frame = modulo_importacion.importar_archivo(file_path)
-
-            # Verificar si se cargó correctamente y mostrar los datos
             self.root.after(0, self.display_data)
             self.root.after(0, self.show_success_message)
         except ValueError as e:
-            error_message = str(e)  # Capturar el mensaje de error para evitar problemas con lambda
+            error_message = str(e)
             self.root.after(0, lambda: self.show_error_message(error_message))
         except Exception as e:
-            # Captura cualquier otro tipo de error inesperado
-            error_message = f"Error inesperado: {str(e)}"
+            error_message = f"Unexpected error: {str(e)}"
             self.root.after(0, lambda: self.show_error_message(error_message))
         finally:
-            self.progress_bar.stop()  # Detener la barra de progreso
-            self.progress_bar.pack_forget()  # Ocultar la barra de progreso
+            self.progress_bar.stop()
+            self.progress_bar.pack_forget()
 
     def display_data(self):
-        # Destruir el frame de la tabla existente si hay uno
         if self.table_frame:
             self.table_frame.destroy()
         
-        # Crear un nuevo frame para la tabla
         self.table_frame = tk.Frame(self.root, bg="white")
         self.table_frame.pack(fill=tk.BOTH, expand=True)
-        
-        # Scrollbars
+
         vsb = ttk.Scrollbar(self.table_frame, orient="vertical")
         vsb.pack(side='right', fill='y')
 
         hsb = ttk.Scrollbar(self.table_frame, orient="horizontal")
         hsb.pack(side='bottom', fill='x')
-        
-        # Crear la tabla
-        self.table = ttk.Treeview(self.table_frame, yscrollcommand=vsb.set, xscrollcommand=hsb.set, 
-                                  style="Treeview")
+
+        self.table = ttk.Treeview(self.table_frame, yscrollcommand=vsb.set, xscrollcommand=hsb.set, style="Treeview")
         self.table.pack(fill=tk.BOTH, expand=True)
 
         vsb.config(command=self.table.yview)
         hsb.config(command=self.table.xview)
-        
-        # Configurar las columnas del Treeview
+
         self.table["columns"] = list(self.data_frame.columns)
         self.table["show"] = "headings"
 
@@ -114,14 +105,50 @@ class DataLoaderApp:
             self.table.heading(col, text=col)
             self.table.column(col, anchor="center", width=100)
 
-        # Insertar datos
         for _, row in self.data_frame.iterrows():
             self.table.insert("", "end", values=list(row))
 
-        print("Data displayed successfully")
+    def handle_nan(self):
+        nan_counts = self.data_frame.isna().sum()
+        nan_columns = nan_counts[nan_counts > 0]
+
+        if nan_columns.empty:
+            messagebox.showinfo("No Missing Values", "No missing values found in the data.")
+            return
+
+        nan_info = "\n".join([f"{col}: {count} missing values" for col, count in nan_columns.items()])
+        messagebox.showinfo("Missing Values Detected", f"The following columns have missing values:\n\n{nan_info}")
+
+        option = simpledialog.askstring("Handle Missing Values", 
+                                        "Choose an option to handle missing values:\n"
+                                        "1. Remove rows with missing values\n"
+                                        "2. Fill with mean (for numeric columns only)\n"
+                                        "3. Fill with median (for numeric columns only)\n"
+                                        "4. Fill with constant")
+
+        if option == "1":
+            self.data_frame.dropna(inplace=True)
+            messagebox.showinfo("Success", "Rows with missing values removed.")
+        elif option == "2":
+            numeric_columns = self.data_frame.select_dtypes(include=['float64', 'int64']).columns
+            self.data_frame[numeric_columns] = self.data_frame[numeric_columns].fillna(self.data_frame[numeric_columns].mean())
+            messagebox.showinfo("Success", "Missing values filled with mean.")
+        elif option == "3":
+            numeric_columns = self.data_frame.select_dtypes(include=['float64', 'int64']).columns
+            self.data_frame[numeric_columns] = self.data_frame[numeric_columns].fillna(self.data_frame[numeric_columns].median())
+            messagebox.showinfo("Success", "Missing values filled with median.")
+        elif option == "4":
+            constant_value = simpledialog.askfloat("Fill with Constant", "Enter a constant value to fill missing values:")
+            if constant_value is not None:
+                self.data_frame.fillna(constant_value, inplace=True)
+                messagebox.showinfo("Success", f"Missing values filled with constant: {constant_value}")
+        else:
+            messagebox.showwarning("Invalid Option", "Please choose a valid option.")
+
+        self.display_data()
 
     def show_success_message(self):
-        messagebox.showinfo("Success", "Archivo cargado exitosamente.")
+        messagebox.showinfo("Success", "File loaded successfully.")
 
     def show_error_message(self, message):
         messagebox.showerror("Error", message)
