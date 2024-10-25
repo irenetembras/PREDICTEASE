@@ -8,18 +8,18 @@ class DataLoaderApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Data Loader")
-        
+
         self.file_path_label = tk.Label(root, text="No file selected", font=("Helvetica", 12))
         self.file_path_label.pack(pady=10)
         
         self.load_button = tk.Button(root, text="Load Dataset", command=self.load_file, font=("Helvetica", 12))
         self.load_button.pack(pady=10)
 
-        # Create the progress bar but keep it hidden initially
         self.progress_bar = ttk.Progressbar(root, orient="horizontal", mode="determinate")
         
         self.data_frame = None
         self.table_frame = None  # Frame for the table
+        self.selector_frame = None  # Frame for the selectors
 
     def load_file(self):
         file_types = [("CSV files", ".csv"), ("Excel files", ".xlsx .xls"), ("SQLite files", ".sqlite *.db")]
@@ -27,10 +27,8 @@ class DataLoaderApp:
         
         if file_path:
             self.file_path_label.config(text=file_path)
-            self.progress_bar.pack(fill=tk.X, padx=10, pady=10)  # Show the progress bar
-            self.progress_bar.start()  # Start the progress bar
-
-            # Use a thread to avoid freezing the interface
+            self.progress_bar.pack(fill=tk.X, padx=10, pady=10)
+            self.progress_bar.start()
             threading.Thread(target=self.load_data, args=(file_path,)).start()
 
     def load_data(self, file_path):
@@ -50,39 +48,30 @@ class DataLoaderApp:
             else:
                 raise ValueError("Unsupported file type.")
 
-            # Additional validations for DataFrame
             if self.data_frame.empty:
                 raise ValueError("The selected file is empty or contains no data.")
             
-            # Validate that the columns contain the expected data types
-            if not all(isinstance(val, (int, float, str)) for col in self.data_frame.columns for val in self.data_frame[col]):
-                raise ValueError("The file contains invalid or malformed data.")
-
-            self.root.after(0, self.display_data)  # Call display_data in the main thread
-            self.root.after(0, self.show_success_message)  # Show success message
+            self.root.after(0, self.display_data)
+            self.root.after(0, self.show_selectors)  # Display selectors after loading data
+            self.root.after(0, self.show_success_message)
         except Exception as e:
-            self.root.after(0, lambda: self.show_error_message(str(e)))  # Error handling in the main thread
+            self.root.after(0, lambda: self.show_error_message(str(e)))
         finally:
-            self.progress_bar.stop()  # Stop the progress bar
-            self.progress_bar.pack_forget()  # Hide the progress bar
+            self.progress_bar.stop()
+            self.progress_bar.pack_forget()
 
     def display_data(self):
-        # Destroy the existing frame and its elements if there is one
         if self.table_frame:
             self.table_frame.destroy()
         
-        # Create a new frame for the table and scrollbars
         self.table_frame = tk.Frame(self.root)
         self.table_frame.pack(fill=tk.BOTH, expand=True)
 
-        # Create scrollbars
         vsb = ttk.Scrollbar(self.table_frame, orient="vertical")
         vsb.pack(side='right', fill='y')
-
         hsb = ttk.Scrollbar(self.table_frame, orient="horizontal")
         hsb.pack(side='bottom', fill='x')
 
-        # Create the Treeview
         self.table = ttk.Treeview(self.table_frame, yscrollcommand=vsb.set, xscrollcommand=hsb.set)
         self.table.pack(fill=tk.BOTH, expand=True)
         
@@ -94,12 +83,56 @@ class DataLoaderApp:
         
         for col in self.data_frame.columns:
             self.table.heading(col, text=col)
-            self.table.column(col, width=100)  # You can adjust the width of the columns here
+            self.table.column(col, width=100)
         
         for _, row in self.data_frame.iterrows():
             self.table.insert("", "end", values=list(row))
         
-        print("Data displayed successfully")
+    def show_selectors(self):
+        if self.selector_frame:
+            self.selector_frame.destroy()
+        
+        self.selector_frame = tk.Frame(self.root)
+        self.selector_frame.pack(pady=10)
+        
+        tk.Label(self.selector_frame, text="Select Input Columns:", font=("Helvetica", 12)).grid(row=0, column=0, padx=10, pady=5)
+        
+        # Casillas de verificación para columnas de entrada
+        self.input_vars = []
+        for col in self.data_frame.columns:
+            var = tk.BooleanVar()
+            self.input_vars.append(var)
+            chk = tk.Checkbutton(self.selector_frame, text=col, variable=var)
+            chk.grid(sticky="w")
+        
+        tk.Label(self.selector_frame, text="Select Target Column:", font=("Helvetica", 12)).grid(row=0, column=1, padx=10, pady=5)
+
+        # Selector único para columna de salida
+        self.target_var = tk.StringVar()
+        self.target_combobox = ttk.Combobox(self.selector_frame, textvariable=self.target_var)
+        self.target_combobox['values'] = list(self.data_frame.columns)
+        self.target_combobox.grid(row=1, column=1, padx=10, pady=5)
+
+        # Botón para confirmar la selección de columnas
+        self.confirm_button = tk.Button(self.selector_frame, text="Confirm Selection", command=self.confirm_selection)
+        self.confirm_button.grid(row=2, column=0, columnspan=2, pady=10)
+
+    def confirm_selection(self):
+        # Obtener las columnas de entrada seleccionadas
+        input_columns = [col for var, col in zip(self.input_vars, self.data_frame.columns) if var.get()]
+        target_column = self.target_var.get()
+
+        # Validar las selecciones
+        if not input_columns and not target_column:
+            messagebox.showerror("Error", "Please select at least one input column and one target column.")
+        elif not input_columns:
+            messagebox.showerror("Error", "Please select at least one input column.")
+        elif not target_column:
+            messagebox.showerror("Error", "Please select a target column.")
+        else:
+            messagebox.showinfo("Selection Confirmed", f"Input Columns: {input_columns}\nTarget Column: {target_column}")
+            print("Selected input columns:", input_columns)
+            print("Selected target column:", target_column)
 
     def show_success_message(self):
         messagebox.showinfo("Success", "File loaded successfully.")
@@ -108,6 +141,6 @@ class DataLoaderApp:
         messagebox.showerror("Error", message)
 
 if __name__ == "__main__":
-    root = tk.Tk()  # Create the main Tkinter window
-    app = DataLoaderApp(root)  # Create an instance of the application
-    root.mainloop()  # Start the main loop of the interface
+    root = tk.Tk()
+    app = DataLoaderApp(root)
+    root.mainloop()
