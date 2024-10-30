@@ -51,7 +51,7 @@ class DataLoaderApp:
     def load_file(self):
         # Load CSV, Excel, DB, or SQLite file
         file_types = [
-            ("CSV files", ".csv"),
+            ("CSV files",  ".csv"),
             ("Excel files", ".xlsx .xls"),
             ("Database files", ".db .sqlite")
         ]
