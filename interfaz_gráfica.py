@@ -9,6 +9,8 @@ from sklearn.metrics import mean_squared_error, r2_score
 import threading
 import matplotlib.pyplot as plt
 
+from modulo_importacion import importar_archivo
+
 class DataLoaderApp:
     def __init__(self, root):
         self.root = root
@@ -66,32 +68,14 @@ class DataLoaderApp:
 
     def load_data(self, file_path):
         try:
-            if file_path.endswith('.csv'):
-                self.data_frame = pd.read_csv(file_path)
-            elif file_path.endswith(('.xlsx', '.xls')):
-                self.data_frame = pd.read_excel(file_path)
-            elif file_path.endswith(('.db', '.sqlite')):
-                self.current_db_connection = self.connect_to_database(file_path)
-                if not self.current_db_connection:
-                    raise ValueError("Unable to connect to the database. Please check the file.")
-                
-                tables = self.get_table_names(self.current_db_connection)
-                if not tables:
-                    raise ValueError("No tables found in the database.")
-
-                table_name = self.select_table(tables)
-                if table_name:
-                    self.data_frame = pd.read_sql_query(f"SELECT * FROM {table_name}", self.current_db_connection)
-                else:
-                    raise ValueError("No table selected.")
-
-                self.current_db_connection.close()
-            else:
-                raise ValueError("Unsupported file type.")
-                
+            # Usamos la función importar_archivo para cargar los datos
+            self.data_frame = importar_archivo(file_path)
+            
+            # Verifica que el DataFrame no esté vacío
             if self.data_frame.empty:
                 raise ValueError("The file is empty.")
-            
+
+            # Actualiza los selectores de columnas
             self.update_column_selectors()
             self.show_message("Success", "File loaded successfully.")
         except Exception as e:
