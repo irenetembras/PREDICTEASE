@@ -156,26 +156,39 @@ class DataLoaderApp:
             messagebox.showwarning("Warning", "No dataset loaded.")
             return
 
+        # Filtrer uniquement les colonnes numériques
         numeric_columns = self.data_frame.select_dtypes(include=['float64', 'int64']).columns
 
         if option == "1":
-            self.data_frame = self.data_frame.dropna()  # Elimina filas con NaN
+            # Supprimer les lignes contenant des NaN
+            self.data_frame = self.data_frame.dropna()
             messagebox.showinfo("Success", "Rows with NaN values removed.")
 
         elif option == "2":
             for col in numeric_columns:
-                mean_value = self.data_frame[col].mean()
-                # Compte le nombre de décimales dans la première valeur non-NaN de la colonne
-                decimals = len(str(self.data_frame[col].dropna().iloc[0]).split(".")[1])
-                self.data_frame[col] = self.data_frame[col].fillna(round(mean_value, decimals))
+                # Vérifier si la colonne contient des données et est numérique
+                if pd.api.types.is_numeric_dtype(self.data_frame[col]) and not self.data_frame[col].dropna().empty:
+                    mean_value = self.data_frame[col].mean()
+                    # Vérifier qu'il y a bien des décimales
+                    first_non_nan = str(self.data_frame[col].dropna().iloc[0])
+                    if '.' in first_non_nan:
+                        decimals = len(first_non_nan.split(".")[1])
+                    else:
+                        decimals = 0  # Pas de décimales dans cette colonne
+                    self.data_frame[col] = self.data_frame[col].fillna(round(mean_value, decimals))
             messagebox.showinfo("Success", "NaN values filled with column mean.")
 
         elif option == "3":
             for col in numeric_columns:
-                median_value = self.data_frame[col].median()
-                # Compte le nombre de décimales dans la première valeur non-NaN de la colonne
-                decimals = len(str(self.data_frame[col].dropna().iloc[0]).split(".")[1])
-                self.data_frame[col] = self.data_frame[col].fillna(round(median_value, decimals))
+                if pd.api.types.is_numeric_dtype(self.data_frame[col]) and not self.data_frame[col].dropna().empty:
+                    median_value = self.data_frame[col].median()
+                    # Vérifier qu'il y a bien des décimales
+                    first_non_nan = str(self.data_frame[col].dropna().iloc[0])
+                    if '.' in first_non_nan:
+                        decimals = len(first_non_nan.split(".")[1])
+                    else:
+                        decimals = 0  # Pas de décimales dans cette colonne
+                    self.data_frame[col] = self.data_frame[col].fillna(round(median_value, decimals))
             messagebox.showinfo("Success", "NaN values filled with column median.")
 
         elif option == "4":
@@ -183,12 +196,14 @@ class DataLoaderApp:
             if constant_value is not None:
                 try:
                     constant_value = float(constant_value)
-                    self.data_frame = self.data_frame.fillna(constant_value)  # Rellena NaN con valor constante
+                    self.data_frame = self.data_frame.fillna(constant_value)
                     messagebox.showinfo("Success", f"NaN values filled with constant value: {constant_value}")
                 except ValueError:
                     messagebox.showerror("Error", "Invalid constant value entered.")
 
-        self.display_data()  # Muestra los datos actualizados
+        # Afficher les données mises à jour
+        self.display_data()
+
 
 
     def create_regression_model(self):
