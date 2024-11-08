@@ -1,273 +1,286 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk, simpledialog
 import threading
-import modulo_importacion
+import pandas as pd
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
-import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import joblib
 
 class DataLoaderApp:
-    """Aplicación para cargar y visualizar datos, manejar NaNs, y crear un modelo de regresión lineal con métricas de error."""
-    
-    def __init__(self, root):
-        root.state('zoomed')
+    """Application to load and visualize data, manage NaNs, and create a linear regression model with error metrics."""
+
+    def _init_(self, root):
+        root.state('zoomed')  # Maximiza la ventana
         self.root = root
-        self.root.title("Data Loader")
-        self.root.configure(bg="white")
-        self.font_style = ("Helvetica", 10)
+        self.root.title("Data Loader")  # Título de la ventana
+        self.root.configure(bg="white")  # Fondo blanco para la ventana
+        self.font_style = ("Helvetica", 10)  # Estilo de fuente
 
-        self.toolbar_color = "#e0e0e0"
-        self.hover_color = "#c0c0c0"
+        # Crear la barra de herramientas
+        self.toolbar = tk.Frame(root, bg="#e0e0e0", height=40)
+        self.toolbar.pack(side="top", fill="x")  # Empaqueta la barra en la parte superior
 
-        self.toolbar = tk.Frame(root, bg=self.toolbar_color, height=40)
-        self.toolbar.pack(side="top", fill="x")
-
-        self.file_menu_button = tk.Menubutton(self.toolbar, text="File", font=self.font_style, bg=self.toolbar_color, fg="black", bd=0, padx=20, pady=5)
+        # Botón de menú de archivo
+        self.file_menu_button = tk.Menubutton(self.toolbar, text="File", font=self.font_style, bg="#e0e0e0", fg="black", bd=0, padx=20, pady=5)
         self.file_menu = tk.Menu(self.file_menu_button, tearoff=0)
-        self.file_menu.add_command(label="Load Dataset", command=self.load_file)
-        self.file_menu.add_separator()
-        self.file_menu.add_command(label="Exit", command=self.root.quit)
-        self.file_menu_button.config(menu=self.file_menu)
-        self.file_menu_button.pack(side="left", padx=10)
-        self.add_hover_effect(self.file_menu_button)
+        self.file_menu.add_command(label="Load Dataset", command=self.load_file)  # Opción para cargar datos
+        self.file_menu.add_separator()  # Separador en el menú
+        self.file_menu.add_command(label="Exit", command=self.root.quit)  # Opción para salir
+        self.file_menu_button.config(menu=self.file_menu)  # Configura el menú
+        self.file_menu_button.pack(side="left", padx=10)  # Empaqueta el botón en la barra de herramientas
 
-        self.data_menu_button = tk.Menubutton(self.toolbar, text="Data", font=self.font_style, bg=self.toolbar_color, fg="black", bd=0, padx=20, pady=5)
+        # Botón de menú de datos
+        self.data_menu_button = tk.Menubutton(self.toolbar, text="Data", font=self.font_style, bg="#e0e0e0", fg="black", bd=0, padx=20, pady=5)
         self.data_menu = tk.Menu(self.data_menu_button, tearoff=0)
-        self.data_menu.add_command(label="Remove rows with NaN", command=lambda: self.handle_nan(option="1"))
-        self.data_menu.add_command(label="Fill with Mean", command=lambda: self.handle_nan(option="2"))
-        self.data_menu.add_command(label="Fill with Median", command=lambda: self.handle_nan(option="3"))
-        self.data_menu.add_command(label="Fill with Constant", command=lambda: self.handle_nan(option="4"))
-        self.data_menu_button.config(menu=self.data_menu)
-        self.data_menu_button.pack(side="left", padx=2)
-        self.add_hover_effect(self.data_menu_button)
+        self.data_menu.add_command(label="Remove rows with NaN", command=lambda: self.handle_nan(option="1"))  # Opción para eliminar NaN
+        self.data_menu.add_command(label="Fill with Mean", command=lambda: self.handle_nan(option="2"))  # Opción para rellenar con media
+        self.data_menu.add_command(label="Fill with Median", command=lambda: self.handle_nan(option="3"))  # Opción para rellenar con mediana
+        self.data_menu.add_command(label="Fill with Constant", command=lambda: self.handle_nan(option="4"))  # Opción para rellenar con constante
+        self.data_menu_button.config(menu=self.data_menu)  # Configura el menú
+        self.data_menu_button.pack(side="left", padx=2)  # Empaqueta el botón en la barra de herramientas
 
-        self.regression_menu_button = tk.Menubutton(self.toolbar, text="Regression", font=self.font_style, bg=self.toolbar_color, fg="black", bd=0, padx=20, pady=5)
-        self.regression_menu = tk.Menu(self.regression_menu_button, tearoff=0)
-        self.regression_menu.add_command(label="Select Columns for Regression", command=self.show_regression_selector)
-        self.regression_menu.add_command(label="Create Regression Model", command=self.create_regression_model)
-        self.regression_menu_button.config(menu=self.regression_menu)
-        self.regression_menu_button.pack(side="left", padx=2)
-        self.add_hover_effect(self.regression_menu_button)
-
+        # Etiqueta para mostrar la ruta del archivo seleccionado
         self.file_path_label = tk.Label(root, text="No file selected", font=self.font_style, bg="white", fg="black")
-        self.file_path_label.pack(pady=10)
+        self.file_path_label.pack(pady=10)  # Empaqueta la etiqueta
 
-        self.progress_bar = ttk.Progressbar(root, orient="horizontal", mode="determinate", length=300, style="TProgressbar")
-        style = ttk.Style()
-        style.configure("TProgressbar", thickness=5, troughcolor="white", background="#007BFF", troughrelief="flat")
-        style.configure("Treeview.Heading", font=("Helvetica", 12), background="#f0f0f0", foreground="black", borderwidth=1)
-        style.configure("Treeview", font=("Helvetica", 10), rowheight=25, fieldbackground="white")
-        style.map("Treeview", background=[("selected", "#007BFF")], foreground=[("selected", "white")])
+        # Frame para la tabla de datos
+        self.table_frame_border = tk.Frame(self.root, bg="#cccccc")
+        self.table_frame_border.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+        self.table_frame = tk.Frame(self.table_frame_border, bg="#f9f9f9")
+        self.table_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
-        self.data_frame = None
-        self.table_frame = None
-        self.selected_input = None
-        self.selected_output = None
-        self.model_description = ""  # Variable to hold the model description
+        # Frame para controles de regresión
+        self.controls_frame_border = tk.Frame(self.root, bg="#cccccc")
+        self.controls_frame_border.pack(side="left", fill="y", padx=10, pady=5)
+        self.controls_frame = tk.Frame(self.controls_frame_border, bg="#f9f9f9")
+        self.controls_frame.pack(fill="both", padx=5, pady=5)
 
-        self.root.bind("<Escape>", lambda e: self.root.state('normal'))
+        # Contenido de la sección de control de regresión
+        input_label = tk.Label(self.controls_frame, text="Select input column:", font=self.font_style, bg="#f9f9f9")
+        input_label.pack(anchor="w", padx=10, pady=5)  # Etiqueta para columna de entrada
+        self.input_selector = ttk.Combobox(self.controls_frame, state="readonly")  # Selector de columna de entrada
+        self.input_selector.pack(fill=tk.X, padx=10, pady=5)
 
-    def add_hover_effect(self, widget):
-        widget.bind("<Enter>", lambda e: widget.config(bg=self.hover_color))
-        widget.bind("<Leave>", lambda e: widget.config(bg=self.toolbar_color))
+        output_label = tk.Label(self.controls_frame, text="Select output column:", font=self.font_style, bg="#f9f9f9")
+        output_label.pack(anchor="w", padx=10, pady=5)  # Etiqueta para columna de salida
+        self.output_selector = ttk.Combobox(self.controls_frame, state="readonly")  # Selector de columna de salida
+        self.output_selector.pack(fill=tk.X, padx=10, pady=5)
 
-    def load_file(self):
-        file_types = [("CSV Files", ".csv"), ("Excel Files", ".xlsx .xls"), ("SQLite Files", ".sqlite *.db")]
-        file_path = filedialog.askopenfilename(filetypes=file_types)
-        if file_path:
-            self.file_path_label.config(text=file_path)
-            self.progress_bar.pack(fill=tk.X, padx=10, pady=10)
-            self.progress_bar.start()
-            threading.Thread(target=self.process_import, args=(file_path,)).start()
-
-    def process_import(self, file_path):
-        try:
-            self.data_frame = modulo_importacion.importar_archivo(file_path)
-            self.root.after(0, self.display_data)
-            self.root.after(0, self.show_success_message)
-        except ValueError as e:
-            error_message = str(e)
-            self.root.after(0, lambda: self.show_error_message(error_message))
-        except Exception as e:
-            error_message = f"Unexpected error: {str(e)}"
-            self.root.after(0, lambda: self.show_error_message(error_message))
-        finally:
-            self.progress_bar.stop()
-            self.progress_bar.pack_forget()
-
-    def show_success_message(self):
-        messagebox.showinfo("Success", "File loaded successfully.")
-
-    def show_error_message(self, message):
-        messagebox.showerror("Error", f"An error occurred: {message}")
-
-    def display_data(self):
-        if self.table_frame:
-            self.table_frame.destroy()
-        
-        self.table_frame = tk.Frame(self.root, bg="white")
-        self.table_frame.pack(fill=tk.BOTH, expand=True)
-
-        vsb = ttk.Scrollbar(self.table_frame, orient="vertical")
-        vsb.pack(side='right', fill='y')
-
-        hsb = ttk.Scrollbar(self.table_frame, orient="horizontal")
-        hsb.pack(side='bottom', fill='x')
-
-        self.table = ttk.Treeview(self.table_frame, yscrollcommand=vsb.set, xscrollcommand=hsb.set, style="Treeview")
-        self.table.pack(fill=tk.BOTH, expand=True)
-
-        vsb.config(command=self.table.yview)
-        hsb.config(command=self.table.xview)
-
-        self.table["columns"] = list(self.data_frame.columns)
-        self.table["show"] = "headings"
-
-        for col in self.data_frame.columns:
-            self.table.heading(col, text=col)
-            self.table.column(col, anchor="center", width=100)
-
-        for _, row in self.data_frame.iterrows():
-            self.table.insert("", "end", values=list(row))
-
-    def show_regression_selector(self):
-        if self.data_frame is None:
-            messagebox.showwarning("Warning", "No dataset loaded.")
-            return
-
-        regression_window = tk.Toplevel(self.root)
-        regression_window.title("Select Columns for Regression")
-        regression_window.geometry("400x300")
-
-        input_label = tk.Label(regression_window, text="Select input column:", font=self.font_style)
-        input_label.pack(anchor="w", padx=10, pady=5)
-
-        input_selector = ttk.Combobox(regression_window, values=list(self.data_frame.columns), state="readonly")
-        input_selector.pack(fill=tk.X, padx=10, pady=5)
-
-        output_label = tk.Label(regression_window, text="Select output column:", font=self.font_style)
-        output_label.pack(anchor="w", padx=10, pady=5)
-
-        output_selector = ttk.Combobox(regression_window, values=list(self.data_frame.columns), state="readonly")
-        output_selector.pack(fill=tk.X, padx=10, pady=5)
-
-        description_label = tk.Label(regression_window, text="Enter model description (optional):", font=self.font_style)
-        description_label.pack(anchor="w", padx=10, pady=5)
-
-        self.description_text = tk.Text(regression_window, height=5, width=40)
+        description_label = tk.Label(self.controls_frame, text="Enter model description (optional):", font=self.font_style, bg="#f9f9f9")
+        description_label.pack(anchor="w", padx=10, pady=5)  # Etiqueta para descripción
+        self.description_text = tk.Text(self.controls_frame, height=4, width=30)  # Caja de texto para descripción
         self.description_text.pack(padx=10, pady=5)
 
-        select_button = tk.Button(regression_window, text="Select", command=lambda: self.confirm_selection(input_selector, output_selector, regression_window))
-        select_button.pack(pady=10)
+        create_button = tk.Button(self.controls_frame, text="Create Model", command=self.create_regression_model, font=self.font_style)  # Botón para crear modelo
+        create_button.pack(pady=10)
 
-    def confirm_selection(self, input_selector, output_selector, regression_window):
-        self.selected_input = input_selector.get()
-        self.selected_output = output_selector.get()
-        self.model_description = self.description_text.get("1.0", "end-1c").strip()  # Get the description text
-        
-        if not self.selected_input or not self.selected_output:
-            messagebox.showwarning("Warning", "Please select both an input and an output column.")
-            return
-        
-        if not self.model_description:
-            messagebox.showinfo("Info", "Model description is optional. Proceeding without it.")
+        save_button = tk.Button(self.controls_frame, text="Save Model", command=self.save_model, font=self.font_style)  # Botón para guardar modelo
+        save_button.pack(pady=5)
 
-        messagebox.showinfo("Success", f"Selected columns:\nInput: {self.selected_input}\nOutput: {self.selected_output}")
-        regression_window.destroy()
+        # Sección para mostrar resultados
+        self.result_label = tk.Label(self.controls_frame, text="", font=self.font_style, fg="blue", justify="left", bg="#f9f9f9")
+        self.result_label.pack(pady=10)
+
+        # Frame para el gráfico
+        self.graph_frame_border = tk.Frame(self.root, bg="#cccccc")
+        self.graph_frame_border.pack(side="right", fill=tk.BOTH, expand=True, padx=10, pady=5)
+        self.graph_frame = tk.Frame(self.graph_frame_border, bg="#f9f9f9")
+        self.graph_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+
+        # Inicialización de variables
+        self.data_frame = None  # DataFrame para almacenar datos
+        self.selected_input = None  # Columna de entrada seleccionada
+        self.selected_output = None  # Columna de salida seleccionada
+        self.model_description = ""  # Descripción del modelo
+        self.model = None  # Modelo de regresión
+
+    def load_file(self):
+        """Loads a data file and processes it."""
+        file_types = [("CSV Files", ".csv"), ("Excel Files", ".xlsx .xls"), ("SQLite Files", ".sqlite *.db")]
+        file_path = filedialog.askopenfilename(filetypes=file_types)  # Diálogo de selección de archivo
+        if file_path:  # Si se selecciona un archivo
+            self.file_path_label.config(text=file_path)  # Actualiza la etiqueta con la ruta del archivo
+            threading.Thread(target=self.process_import, args=(file_path,)).start()  # Carga el archivo en un hilo separado
+
+    def process_import(self, file_path):
+        """Processes the import of the selected file."""
+        try:
+            self.data_frame = pd.read_csv(file_path)  # Importa el archivo CSV
+            self.root.after(0, self.display_data)  # Muestra los datos en la tabla
+            self.root.after(0, self.populate_selectors)  # Llena los selectores de columna
+            self.root.after(0, lambda: messagebox.showinfo("Success", "File loaded successfully."))  # Muestra mensaje de éxito
+        except Exception as e:
+            self.root.after(0, lambda: messagebox.showerror("Error", f"An error occurred: {str(e)}"))  # Manejo de errores
+
+    def populate_selectors(self):
+        """Fills the column selectors with the columns from the DataFrame."""
+        if self.data_frame is not None:
+            columns = list(self.data_frame.columns)
+            self.input_selector['values'] = columns  # Llena el selector de entrada con columnas
+            self.output_selector['values'] = columns  # Llena el selector de salida con columnas
+
+    def display_data(self):
+        """Displays the data in a table."""
+        for widget in self.table_frame.winfo_children():
+            widget.destroy()  # Limpia la tabla antes de mostrar nuevos datos
+        
+        vsb = ttk.Scrollbar(self.table_frame, orient="vertical")  # Barra de desplazamiento vertical
+        vsb.pack(side='right', fill='y')
+        hsb = ttk.Scrollbar(self.table_frame, orient="horizontal")  # Barra de desplazamiento horizontal
+        hsb.pack(side='bottom', fill='x')
+        
+        self.table = ttk.Treeview(self.table_frame, yscrollcommand=vsb.set, xscrollcommand=hsb.set, style="Treeview")  # Tabla para mostrar datos
+        self.table.pack(fill=tk.BOTH, expand=True)
+        
+        vsb.config(command=self.table.yview)  # Configura la barra de desplazamiento vertical
+        hsb.config(command=self.table.xview)  # Configura la barra de desplazamiento horizontal
+        
+        self.table["columns"] = list(self.data_frame.columns)
+        self.table["show"] = "headings"
+        
+        for col in self.data_frame.columns:
+            self.table.heading(col, text=col)  # Configura los encabezados de columna
+            self.table.column(col, anchor="center", width=100)  # Centra el texto en las columnas
+        
+        for _, row in self.data_frame.iterrows():
+            self.table.insert("", "end", values=list(row))  # Inserta filas en la tabla
 
     def handle_nan(self, option):
-        """Maneja valores NaN en el DataFrame según la opción seleccionada: eliminar, rellenar con media, mediana o un valor constante."""
+        """Handles NaN values in the DataFrame based on the selected option."""
         if self.data_frame is None:
             messagebox.showwarning("Warning", "No dataset loaded.")
             return
 
-        def get_decimal_places(series):
-            decimals = series.astype(str).str.extract(r'\.(\d+)').dropna()
-            return max(decimals[0].str.len().max(), 0) if not decimals.empty else 0
-
         if option == "1":
-            self.data_frame.dropna(inplace=True)
+            self.data_frame = self.data_frame.dropna()  # Elimina filas con NaN
             messagebox.showinfo("Success", "Rows with NaN values removed.")
         elif option == "2":
             numeric_columns = self.data_frame.select_dtypes(include=['float64', 'int64']).columns
             for col in numeric_columns:
                 mean_value = self.data_frame[col].mean()
-                decimal_places = get_decimal_places(self.data_frame[col])
-                rounded_mean_value = round(mean_value, int(decimal_places))
-                self.data_frame[col].fillna(rounded_mean_value, inplace=True)
+                self.data_frame[col] = self.data_frame[col].fillna(mean_value)  # Rellena NaN con media
             messagebox.showinfo("Success", "NaN values filled with column mean.")
         elif option == "3":
             numeric_columns = self.data_frame.select_dtypes(include=['float64', 'int64']).columns
             for col in numeric_columns:
                 median_value = self.data_frame[col].median()
-                decimal_places = get_decimal_places(self.data_frame[col])
-                rounded_median_value = round(median_value, int(decimal_places))
-                self.data_frame[col].fillna(rounded_median_value, inplace=True)
+                self.data_frame[col] = self.data_frame[col].fillna(median_value)  # Rellena NaN con mediana
             messagebox.showinfo("Success", "NaN values filled with column median.")
         elif option == "4":
             constant_value = simpledialog.askstring("Input", "Enter a constant value:")
             if constant_value is not None:
                 try:
                     constant_value = float(constant_value)
+                    self.data_frame = self.data_frame.fillna(constant_value)  # Rellena NaN con valor constante
+                    messagebox.showinfo("Success", f"NaN values filled with constant value: {constant_value}")
                 except ValueError:
-                    pass
-                self.data_frame.fillna(constant_value, inplace=True)
-                messagebox.showinfo("Success", f"NaN values filled with constant value: {constant_value}")
-        
-        self.display_data()
+                    messagebox.showerror("Error", "Invalid constant value entered.")
+
+        self.display_data()  # Muestra los datos actualizados
 
     def create_regression_model(self):
-        """Crea el modelo de regresión lineal, mostrando los resultados, métricas y gráfico, si es aplicable."""
+        """Creates a linear regression model using the selected columns."""
         if self.data_frame is None:
             messagebox.showwarning("Warning", "No dataset loaded.")
             return
+
+        # Obtén las columnas seleccionadas de los comboboxes
+        self.selected_input = self.input_selector.get()
+        self.selected_output = self.output_selector.get()
+        
         if not self.selected_input or not self.selected_output:
             messagebox.showwarning("Warning", "No columns selected for regression.")
             return
 
+        # Verifica si la descripción está vacía
+        self.model_description = self.description_text.get("1.0", "end-1c").strip()
+        if not self.model_description:
+            proceed = messagebox.askyesno("Missing Description", "No model description provided. Do you want to continue?")
+            if not proceed:
+                return
+
         try:
-            X = self.data_frame[[self.selected_input]].values
-            y = self.data_frame[self.selected_output].values
+            X = self.data_frame[[self.selected_input]].values  # Valores de la columna de entrada
+            y = self.data_frame[self.selected_output].values  # Valores de la columna de salida
 
-            model = LinearRegression()
-            model.fit(X, y)
-            predictions = model.predict(X)
-            mse = mean_squared_error(y, predictions)
-            r2 = r2_score(y, predictions)
+            self.model = LinearRegression()  # Crea modelo de regresión
+            self.model.fit(X, y)  # Ajusta el modelo a los datos
+            predictions = self.model.predict(X)  # Realiza predicciones
+            mse = mean_squared_error(y, predictions)  # Calcula el error cuadrático medio
+            r2 = r2_score(y, predictions)  # Calcula el valor R²
 
-            print(f"Model Description: {self.model_description}")
+            intercept = self.model.intercept_  # Intercepto del modelo
+            coef = self.model.coef_[0]  # Coeficiente del modelo
+            formula = f"{self.selected_output} = {coef:.2f} * {self.selected_input} + {intercept:.2f}"  # Fórmula del modelo
+            self.result_label.config(text=f"Formula: {formula}\nR²: {r2:.2f}\nMSE: {mse:.2f}")  # Muestra resultados
 
-            messagebox.showinfo("Model Created", f"Model created successfully.\nR²: {r2:.2f}\nMSE: {mse:.2f}")
-            intercept = model.intercept_
-            coef = model.coef_[0]
-            formula = f"{self.selected_output} = {coef:.2f} * {self.selected_input} + {intercept:.2f}"
-            messagebox.showinfo("Formula", f"Regression formula:\n{formula}")
+            # Limpia gráficos existentes en la sección de gráficos
+            for widget in self.graph_frame.winfo_children():
+                widget.destroy()
 
-            if self.data_frame[self.selected_input].dtype in [np.float64, np.int64] and self.data_frame[self.selected_output].dtype in [np.float64, np.int64]:
-                fig, ax = plt.subplots()
-                ax.scatter(X, y, color="blue", label="Data points")
-                ax.plot(X, predictions, color="red", label="Regression line")
-                ax.set_xlabel(self.selected_input)
-                ax.set_ylabel(self.selected_output)
-                ax.legend()
-                ax.set_title("Regression Line")
+            # Crea el gráfico
+            fig, ax = plt.subplots(figsize=(10, 5))
+            ax.scatter(X, y, color="blue", label="Data Points")  # Puntos de datos
+            ax.plot(X, predictions, color="red", label="Regression Line")  # Línea de regresión
+            ax.set_xlabel(self.selected_input)  # Etiqueta eje X
+            ax.set_ylabel(self.selected_output)  # Etiqueta eje Y
+            ax.legend()  # Leyenda
+            ax.set_title("Regression Line")  # Título del gráfico
 
-                graph_window = tk.Toplevel(self.root)
-                graph_window.title("Regression Plot")
-                description_label = tk.Label(graph_window, text=f"Model Description: {self.model_description}", font=self.font_style, justify="left", wraplength=400)
-                description_label.pack(padx=10, pady=10)
-                canvas = FigureCanvasTkAgg(fig, master=graph_window)
-                canvas.draw()
-                canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
-            else:
-                messagebox.showinfo("Graph Not Available", "Graph not available for non-numeric or multiple input columns.")
+            canvas = FigureCanvasTkAgg(fig, master=self.graph_frame)  # Crea un canvas para el gráfico
+            canvas.draw()  # Dibuja el gráfico
+            canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)  # Empaqueta el canvas
+
         except Exception as e:
-            messagebox.showerror("Error", f"An error occurred while creating the model: {e}")
+            messagebox.showerror("Error", f"An error occurred while creating the model: {e}")  # Manejo de errores
 
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = DataLoaderApp(root)
-    root.mainloop()
+    def save_model(self):
+        """Saves the linear regression model data to a file."""
+        if self.model is None:
+            messagebox.showwarning("Warning", "No model has been created to save.")
+            return
+
+        file_path = filedialog.asksaveasfilename(defaultextension=".pkl", filetypes=[("Pickle files", ".pkl"), ("Joblib files", ".joblib"), ("Text files", "*.txt")])
+        if not file_path:
+            return  # Sale si no se seleccionó un archivo
+
+        try:
+            # Calcula las métricas
+            metrics_r2 = r2_score(self.data_frame[self.selected_output], self.model.predict(self.data_frame[[self.selected_input]]))
+            metrics_mse = mean_squared_error(self.data_frame[self.selected_output], self.model.predict(self.data_frame[[self.selected_input]]))
+
+            # Prepara los datos para guardar
+            formula = f"{self.selected_output} = {self.model.coef_[0]:.2f} * {self.selected_input} + {self.model.intercept_:.2f}"
+            model_data = {
+                'input_column': self.selected_input,
+                'output_column': self.selected_output,
+                'model_description': self.model_description,
+                'formula': formula,
+                'metrics': {
+                    'R²': round(metrics_r2, 2),
+                    'MSE': round(metrics_mse, 2)
+                }
+            }
+
+            # Guarda los datos del modelo en el formato seleccionado
+            if file_path.endswith(".txt"):
+                with open(file_path, 'w') as file:
+                    file.write(f"Model Description: {model_data['model_description']}\n")
+                    file.write(f"Input Column: {model_data['input_column']}\n")
+                    file.write(f"Output Column: {model_data['output_column']}\n")
+                    file.write(f"Formula: {model_data['formula']}\n")
+                    file.write(f"R²: {model_data['metrics']['R²']}\n")
+                    file.write(f"MSE: {model_data['metrics']['MSE']}\n")
+            else:
+                joblib.dump(model_data, file_path)  # Guarda como archivo Joblib
+
+            messagebox.showinfo("Success", f"Model data saved successfully at {file_path}.")
+        except Exception as e:
+            messagebox.showerror("Error", f"An error occurred while saving the model: {e}")  # Manejo de errores
+
+if _name_ == "_main_":
+    root = tk.Tk()  # Inicializa la ventana principal
+    app = DataLoaderApp(root)  # Crea la aplicación
+    root.mainloop()  # Inicia el bucle principal de la aplicación
