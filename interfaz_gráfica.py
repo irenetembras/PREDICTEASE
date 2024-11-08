@@ -11,7 +11,7 @@ import joblib
 class DataLoaderApp:
     """Application to load and visualize data, manage NaNs, and create a linear regression model with error metrics."""
 
-    def _init_(self, root):
+    def __init__(self, root):
         root.state('zoomed')  # Maximiza la ventana
         self.root = root
         self.root.title("Data Loader")  # Título de la ventana
@@ -242,7 +242,7 @@ class DataLoaderApp:
             messagebox.showwarning("Warning", "No model has been created to save.")
             return
 
-        file_path = filedialog.asksaveasfilename(defaultextension=".pkl", filetypes=[("Pickle files", ".pkl"), ("Joblib files", ".joblib"), ("Text files", "*.txt")])
+        file_path = filedialog.asksaveasfilename(defaultextension=".pkl", filetypes=[("Pickle files", "*.pkl"), ("Joblib files", "*.joblib"), ("Text files", "*.txt")])
         if not file_path:
             return  # Sale si no se seleccionó un archivo
 
@@ -280,7 +280,8 @@ class DataLoaderApp:
         except Exception as e:
             messagebox.showerror("Error", f"An error occurred while saving the model: {e}")  # Manejo de errores
 
-if _name_ == "_main_":
+if __name__ == "__main__":
     root = tk.Tk()  # Inicializa la ventana principal
     app = DataLoaderApp(root)  # Crea la aplicación
     root.mainloop()  # Inicia el bucle principal de la aplicación
+
