@@ -109,6 +109,8 @@ class DataLoaderApp:
         """Processes the import of the selected file."""
         try:
             self.data_frame = modulo_importacion.importar_archivo(file_path)  # Utiliser le module importado
+            if self.data_frame.empty:
+                raise ValueError("Le fichier est vide.")
             self.root.after(0, self.display_data)  # Muestra los datos en la tabla
             self.root.after(0, self.populate_selectors)  # Llena los selectores de columna
             self.root.after(0, lambda: messagebox.showinfo("Success", "File loaded successfully."))  # Muestra mensaje de éxito
@@ -154,21 +156,28 @@ class DataLoaderApp:
             messagebox.showwarning("Warning", "No dataset loaded.")
             return
 
+        numeric_columns = self.data_frame.select_dtypes(include=['float64', 'int64']).columns
+
         if option == "1":
             self.data_frame = self.data_frame.dropna()  # Elimina filas con NaN
             messagebox.showinfo("Success", "Rows with NaN values removed.")
+
         elif option == "2":
-            numeric_columns = self.data_frame.select_dtypes(include=['float64', 'int64']).columns
             for col in numeric_columns:
                 mean_value = self.data_frame[col].mean()
-                self.data_frame[col] = self.data_frame[col].fillna(mean_value)  # Rellena NaN con media
+                # Compte le nombre de décimales dans la première valeur non-NaN de la colonne
+                decimals = len(str(self.data_frame[col].dropna().iloc[0]).split(".")[1])
+                self.data_frame[col] = self.data_frame[col].fillna(round(mean_value, decimals))
             messagebox.showinfo("Success", "NaN values filled with column mean.")
+
         elif option == "3":
-            numeric_columns = self.data_frame.select_dtypes(include=['float64', 'int64']).columns
             for col in numeric_columns:
                 median_value = self.data_frame[col].median()
-                self.data_frame[col] = self.data_frame[col].fillna(median_value)  # Rellena NaN con mediana
+                # Compte le nombre de décimales dans la première valeur non-NaN de la colonne
+                decimals = len(str(self.data_frame[col].dropna().iloc[0]).split(".")[1])
+                self.data_frame[col] = self.data_frame[col].fillna(round(median_value, decimals))
             messagebox.showinfo("Success", "NaN values filled with column median.")
+
         elif option == "4":
             constant_value = simpledialog.askstring("Input", "Enter a constant value:")
             if constant_value is not None:
@@ -180,6 +189,7 @@ class DataLoaderApp:
                     messagebox.showerror("Error", "Invalid constant value entered.")
 
         self.display_data()  # Muestra los datos actualizados
+
 
     def create_regression_model(self):
         """Creates a linear regression model using the selected columns."""
