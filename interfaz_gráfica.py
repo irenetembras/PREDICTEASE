@@ -7,6 +7,7 @@ from sklearn.metrics import mean_squared_error, r2_score
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import joblib
+import modulo_importacion  
 
 class DataLoaderApp:
     """Application to load and visualize data, manage NaNs, and create a linear regression model with error metrics."""
@@ -107,7 +108,7 @@ class DataLoaderApp:
     def process_import(self, file_path):
         """Processes the import of the selected file."""
         try:
-            self.data_frame = pd.read_csv(file_path)  # Importa el archivo CSV
+            self.data_frame = modulo_importacion.importar_archivo(file_path)  # Utiliser le module importado
             self.root.after(0, self.display_data)  # Muestra los datos en la tabla
             self.root.after(0, self.populate_selectors)  # Llena los selectores de columna
             self.root.after(0, lambda: messagebox.showinfo("Success", "File loaded successfully."))  # Muestra mensaje de éxito
@@ -242,40 +243,28 @@ class DataLoaderApp:
             messagebox.showwarning("Warning", "No model has been created to save.")
             return
 
-        file_path = filedialog.asksaveasfilename(defaultextension=".pkl", filetypes=[("Pickle files", "*.pkl"), ("Joblib files", "*.joblib"), ("Text files", "*.txt")])
+        file_path = filedialog.asksaveasfilename(defaultextension=".pkl",
+                                                  filetypes=[("Pickle files", "*.pkl"), 
+                                                             ("Joblib files", "*.joblib"), 
+                                                             ("Text files", "*.txt")])
         if not file_path:
             return  # Sale si no se seleccionó un archivo
 
         try:
-            # Calcula las métricas
-            metrics_r2 = r2_score(self.data_frame[self.selected_output], self.model.predict(self.data_frame[[self.selected_input]]))
-            metrics_mse = mean_squared_error(self.data_frame[self.selected_output], self.model.predict(self.data_frame[[self.selected_input]]))
-
             # Prepara los datos para guardar
-            formula = f"{self.selected_output} = {self.model.coef_[0]:.2f} * {self.selected_input} + {self.model.intercept_:.2f}"
             model_data = {
                 'input_column': self.selected_input,
                 'output_column': self.selected_output,
                 'model_description': self.model_description,
-                'formula': formula,
+                'formula': f"{self.selected_output} = {self.model.coef_[0]:.2f} * {self.selected_input} + {self.model.intercept_:.2f}",
                 'metrics': {
-                    'R²': round(metrics_r2, 2),
-                    'MSE': round(metrics_mse, 2)
+                    'R²': round(r2_score(self.data_frame[self.selected_output], self.model.predict(self.data_frame[[self.selected_input]])), 2),
+                    'MSE': round(mean_squared_error(self.data_frame[self.selected_output], self.model.predict(self.data_frame[[self.selected_input]])), 2)
                 }
             }
 
-            # Guarda los datos del modelo en el formato seleccionado
-            if file_path.endswith(".txt"):
-                with open(file_path, 'w') as file:
-                    file.write(f"Model Description: {model_data['model_description']}\n")
-                    file.write(f"Input Column: {model_data['input_column']}\n")
-                    file.write(f"Output Column: {model_data['output_column']}\n")
-                    file.write(f"Formula: {model_data['formula']}\n")
-                    file.write(f"R²: {model_data['metrics']['R²']}\n")
-                    file.write(f"MSE: {model_data['metrics']['MSE']}\n")
-            else:
-                joblib.dump(model_data, file_path)  # Guarda como archivo Joblib
-
+            # Sauvegarde les données du modèle
+            joblib.dump(model_data, file_path)
             messagebox.showinfo("Success", f"Model data saved successfully at {file_path}.")
         except Exception as e:
             messagebox.showerror("Error", f"An error occurred while saving the model: {e}")  # Manejo de errores
@@ -284,4 +273,3 @@ if __name__ == "__main__":
     root = tk.Tk()  # Inicializa la ventana principal
     app = DataLoaderApp(root)  # Crea la aplicación
     root.mainloop()  # Inicia el bucle principal de la aplicación
-
