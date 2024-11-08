@@ -270,8 +270,7 @@ class DataLoaderApp:
 
         file_path = filedialog.asksaveasfilename(defaultextension=".pkl",
                                                   filetypes=[("Pickle files", "*.pkl"), 
-                                                             ("Joblib files", "*.joblib"), 
-                                                             ("Text files", "*.txt")])
+                                                             ("Joblib files", "*.joblib")])
         if not file_path:
             return  # Sale si no se seleccionó un archivo
 
