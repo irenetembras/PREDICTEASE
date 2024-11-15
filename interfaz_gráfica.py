@@ -18,7 +18,6 @@ class DataLoaderApp:
     Application to load and visualize data, manage NaNs, and create a
     linear regression model with error metrics.
     """
-
     def __init__(self, root):
         root.state('zoomed')
         self.root = root
@@ -42,8 +41,12 @@ class DataLoaderApp:
             pady=5
         )
         self.file_menu = tk.Menu(self.file_menu_button, tearoff=0)
-        self.file_menu.add_command(label="Load Dataset", command=self.load_file)
-        self.file_menu.add_command(label="Load Model", command=self.load_model)
+        self.file_menu.add_command(
+            label="Load Dataset", command=self.load_file
+            )
+        self.file_menu.add_command(
+            label="Load Model", command=self.load_model
+            )
         self.file_menu.add_separator()
         self.file_menu.add_command(label="Exit", command=self.root.quit)
         self.file_menu_button.config(menu=self.file_menu)
@@ -92,14 +95,21 @@ class DataLoaderApp:
 
         # Frame for the data table
         self.table_frame_border = tk.Frame(self.root, bg="#cccccc")
-        self.table_frame_border.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
-        self.table_frame = tk.Frame(self.table_frame_border, bg="#f9f9f9")
+        self.table_frame_border.pack(
+            fill=tk.BOTH, expand=True, padx=10, pady=5)
+        self.table_frame = tk.Frame(
+            self.table_frame_border, bg="#f9f9f9"
+                                    )
         self.table_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
         # Frame for regression controls
         self.controls_frame_border = tk.Frame(self.root, bg="#cccccc")
-        self.controls_frame_border.pack(side="left", fill="y", padx=10, pady=5)
-        self.controls_frame = tk.Frame(self.controls_frame_border, bg="#f9f9f9")
+        self.controls_frame_border.pack(
+            side="left", fill="y", padx=10, pady=5
+            )
+        self.controls_frame = tk.Frame(
+            self.controls_frame_border, bg="#f9f9f9"
+            )
         self.controls_frame.pack(fill="both", padx=5, pady=5)
 
         # Content of the regression control section
@@ -110,7 +120,9 @@ class DataLoaderApp:
             bg="#f9f9f9"
         )
         input_label.pack(anchor="w", padx=10, pady=5)
-        self.input_selector = ttk.Combobox(self.controls_frame, state="readonly")
+        self.input_selector = ttk.Combobox(
+            self.controls_frame, state="readonly"
+            )
         self.input_selector.pack(fill=tk.X, padx=10, pady=5)
 
         output_label = tk.Label(
@@ -120,7 +132,9 @@ class DataLoaderApp:
             bg="#f9f9f9"
         )
         output_label.pack(anchor="w", padx=10, pady=5)
-        self.output_selector = ttk.Combobox(self.controls_frame, state="readonly")
+        self.output_selector = ttk.Combobox(
+            self.controls_frame, state="readonly"
+            )
         self.output_selector.pack(fill=tk.X, padx=10, pady=5)
 
         description_label = tk.Label(
@@ -130,8 +144,10 @@ class DataLoaderApp:
             bg="#f9f9f9"
         )
         description_label.pack(anchor="w", padx=10, pady=5)
-        self.description_text = tk.Text(self.controls_frame, height=4, width=30)
-        self.description_text.pack(padx=10, pady=5)
+        self.dtext = tk.Text(
+            self.controls_frame, height=4, width=30
+            )
+        self.dtext.pack(padx=10, pady=5)
 
         create_button = tk.Button(
             self.controls_frame,
@@ -173,7 +189,7 @@ class DataLoaderApp:
         self.graph_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
         # Initialization of variables
-        self.data_frame = None
+        self.df = None
         self.selected_input = None
         self.selected_output = None
         self.model_description = ""
@@ -189,13 +205,19 @@ class DataLoaderApp:
         file_path = filedialog.askopenfilename(filetypes=file_types)
         if file_path:
             self.file_path_label.config(text=file_path)
+
             # If model details frame exists, destroy it
-            if hasattr(self, 'model_details_frame') and self.model_details_frame:
-                self.model_details_frame.destroy()
+            if hasattr(self, 'model_details') and self.model_details:
+                self.model_details.destroy()
+
             # Ensure data components are visible
             self.file_path_label.pack(pady=10)
-            self.table_frame_border.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
-            self.controls_frame_border.pack(side="left", fill="y", padx=10, pady=5)
+            self.table_frame_border.pack(
+                fill=tk.BOTH, expand=True, padx=10, pady=5
+                )
+            self.controls_frame_border.pack(
+                side="left", fill="y", padx=10, pady=5
+                )
             self.graph_frame_border.pack(
                 side="right",
                 fill=tk.BOTH,
@@ -218,7 +240,7 @@ class DataLoaderApp:
         """Resets the input/output selectors and description field."""
         self.input_selector.set('')
         self.output_selector.set('')
-        self.description_text.delete('1.0', tk.END)
+        self.dtext.delete('1.0', tk.END)
         self.result_label.config(text='')
 
     def clear_graph(self):
@@ -227,29 +249,37 @@ class DataLoaderApp:
             widget.destroy()
 
     def process_import(self, file_path):
-        """Processes the import of the selected file with additional checks for empty files."""
+        """Processes the import of the selected file."""
         try:
             # Check file size before importing
             if os.path.getsize(file_path) == 0:
-                raise ValueError("The selected file is empty (size is zero bytes).")
+                raise ValueError(
+                    "The selected file is empty (size is zero bytes)."
+                    )
 
             # Import the file
-            self.data_frame = modulo_importacion.import_file(file_path)
+            self.df = modulo_importacion.import_file(file_path)
 
             # Check if the DataFrame is empty after import
-            if self.data_frame is None or self.data_frame.empty:
-                raise ValueError("The imported file is empty (no rows or columns found).")
+            if self.df is None or self.df.empty:
+                raise ValueError(
+                    "The imported file is empty (no rows or columns found)."
+                    )
 
             # Check if the file contains only empty columns
-            if not self.data_frame.columns.any() or self.data_frame.dropna(how='all').empty:
-                raise ValueError("The imported file has only empty columns or rows.")
+            if not self.df.columns.any() or self.df.dropna(how='all').empty:
+                raise ValueError(
+                    "The imported file has only empty columns or rows."
+                    )
 
             # If everything is correct, display the data
             self.root.after(0, self.display_data)
             self.root.after(0, self.populate_selectors)
             self.root.after(
                 0,
-                lambda: messagebox.showinfo("Success", "File loaded successfully.")
+                lambda: messagebox.showinfo(
+                    "Success", "File loaded successfully."
+                    )
             )
 
         except Exception as e:
@@ -261,8 +291,8 @@ class DataLoaderApp:
 
     def populate_selectors(self):
         """Fills the column selectors with the columns from the DataFrame."""
-        if self.data_frame is not None:
-            columns = list(self.data_frame.columns)
+        if self.df is not None:
+            columns = list(self.df.columns)
             self.input_selector['values'] = columns
             self.output_selector['values'] = columns
 
@@ -270,8 +300,12 @@ class DataLoaderApp:
         """Displays the data in a table."""
         # Ensure data frames are visible
         self.file_path_label.pack(pady=10)
-        self.table_frame_border.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
-        self.controls_frame_border.pack(side="left", fill="y", padx=10, pady=5)
+        self.table_frame_border.pack(
+            fill=tk.BOTH, expand=True, padx=10, pady=5
+            )
+        self.controls_frame_border.pack(
+            side="left", fill="y", padx=10, pady=5
+            )
         self.graph_frame_border.pack(
             side="right",
             fill=tk.BOTH,
@@ -308,43 +342,41 @@ class DataLoaderApp:
         hsb.config(command=self.table.xview)
 
         # Configurer les colonnes de la table
-        self.table["columns"] = list(self.data_frame.columns)
+        self.table["columns"] = list(self.df.columns)
         self.table["show"] = "headings"
 
-        for col in self.data_frame.columns:
+        for col in self.df.columns:
             self.table.heading(col, text=col)
             self.table.column(col, anchor="center", width=100)
 
         # Insérer les données dans la table
-        for _, row in self.data_frame.iterrows():
+        for _, row in self.df.iterrows():
             self.table.insert("", "end", values=list(row))
 
     def handle_nan(self, option):
-        """Handles NaN values in the DataFrame based on the selected option."""
-        if self.data_frame is None:
+        """Handles NaN values in the DataFrame."""
+        if self.df is None:
             messagebox.showwarning("Warning", "No dataset loaded.")
             return
 
         if option == "1":
-            self.data_frame = self.data_frame.dropna()
+            self.df = self.df.dropna()
             messagebox.showinfo("Success", "Rows with NaN values removed.")
         else:
-            numeric_columns = self.data_frame.select_dtypes(
+            numeric_columns = self.df.select_dtypes(
                 include=['float64', 'int64']
             ).columns
             for col in numeric_columns:
                 if option == "2":  # Fill with mean
-                    mean_value = self.data_frame[col].mean()
-                    decimal_places = self.get_decimal_places(self.data_frame[col])
-                    rounded_mean_value = round(mean_value, decimal_places)
-                    self.data_frame[col] = self.data_frame[col].fillna(
+                    mean_value = self.df[col].mean()
+                    rounded_mean_value = round(mean_value, 3)
+                    self.df[col] = self.df[col].fillna(
                         rounded_mean_value
                     )
                 elif option == "3":  # Fill with median
-                    median_value = self.data_frame[col].median()
-                    decimal_places = self.get_decimal_places(self.data_frame[col])
-                    rounded_median_value = round(median_value, decimal_places)
-                    self.data_frame[col] = self.data_frame[col].fillna(
+                    median_value = self.df[col].median()
+                    rounded_median_value = round(median_value, 3)
+                    self.df[col] = self.df[col].fillna(
                         rounded_median_value
                     )
                 elif option == "4":  # Fill with constant
@@ -355,7 +387,7 @@ class DataLoaderApp:
                     if constant_value is not None:
                         try:
                             constant_value = float(constant_value)
-                            self.data_frame[col] = self.data_frame[col].fillna(
+                            self.df[col] = self.df[col].fillna(
                                 constant_value
                             )
                         except ValueError:
@@ -365,9 +397,13 @@ class DataLoaderApp:
                             )
             # Display success message after processing
             if option == "2":
-                messagebox.showinfo("Success", "NaN values filled with column mean.")
+                messagebox.showinfo(
+                    "Success", "NaN values filled with column mean."
+                    )
             elif option == "3":
-                messagebox.showinfo("Success", "NaN values filled with column median.")
+                messagebox.showinfo(
+                    "Success", "NaN values filled with column median."
+                    )
             elif option == "4" and constant_value is not None:
                 messagebox.showinfo(
                     "Success",
@@ -375,14 +411,9 @@ class DataLoaderApp:
                 )
         self.display_data()
 
-    def get_decimal_places(self, series):
-        """Returns the maximum number of decimal places in the series."""
-        decimals = series.dropna().astype(str).str.split('.').str[1]  # Get the decimal part
-        return decimals.str.len().max() if not decimals.empty else 0
-
     def create_regression_model(self):
         """Creates a linear regression model using the selected columns."""
-        if self.data_frame is None:
+        if self.df is None:
             messagebox.showwarning("Warning", "No dataset loaded.")
             return
 
@@ -390,10 +421,12 @@ class DataLoaderApp:
         self.selected_output = self.output_selector.get()
 
         if not self.selected_input or not self.selected_output:
-            messagebox.showwarning("Warning", "No columns selected for regression.")
+            messagebox.showwarning(
+                "Warning", "No columns selected for regression."
+                )
             return
 
-        self.model_description = self.description_text.get("1.0", "end-1c").strip()
+        self.model_description = self.dtext.get("1.0", "end-1c").strip()
         if not self.model_description:
             proceed = messagebox.askyesno(
                 "Missing Description",
@@ -403,8 +436,8 @@ class DataLoaderApp:
                 return
 
         try:
-            X = self.data_frame[[self.selected_input]].values
-            y = self.data_frame[self.selected_output].values
+            X = self.df[[self.selected_input]].values
+            y = self.df[self.selected_output].values
 
             self.model = LinearRegression()
             self.model.fit(X, y)
@@ -415,7 +448,7 @@ class DataLoaderApp:
             intercept = self.model.intercept_
             coef = self.model.coef_[0]
             formula = (
-                f"{self.selected_output} = {coef:.2f} * {self.selected_input} "
+                f"{self.selected_output} = {coef:.2f} * {self.selected_input}"
                 f"+ {intercept:.2f}"
             )
             self.result_label.config(
@@ -470,21 +503,21 @@ class DataLoaderApp:
                 'output_column': self.selected_output,
                 'model_description': self.model_description,
                 'formula': (
-                    f"{self.selected_output} = {self.model.coef_[0]:.2f} "
+                    f"{self.selected_output} = {self.model.coef_[0]:.2f}"
                     f"* {self.selected_input} + {self.model.intercept_:.2f}"
                 ),
                 'metrics': {
                     'R²': round(
                         r2_score(
-                            self.data_frame[self.selected_output],
-                            self.model.predict(self.data_frame[[self.selected_input]])
+                            self.df[self.selected_output],
+                            self.model.predict(self.df[[self.selected_input]])
                         ),
                         2
                     ),
                     'MSE': round(
                         mean_squared_error(
-                            self.data_frame[self.selected_output],
-                            self.model.predict(self.data_frame[[self.selected_input]])
+                            self.df[self.selected_output],
+                            self.model.predict(self.df[[self.selected_input]])
                         ),
                         2
                     )
@@ -541,19 +574,19 @@ class DataLoaderApp:
                 break  # Exit the loop after successful load
 
             except Exception as e:
-                error_message = f"An error occurred while loading the model: {str(e)}"
+                error_message = f"Error while loading the model: {str(e)}"
                 retry = messagebox.askretrycancel(
                     "Error",
-                    f"{error_message}\n\nWould you like to try loading another file?"
+                    f"{error_message}\n\nMaybe try loading another file?"
                 )
                 if not retry:
-                    break  # Exit the loop if the user cancels
+                    break  
 
     def update_interface_for_model(self, formula, r2, mse):
-        """Update the interface to display the loaded model's details and hide other sections."""
+        """Update the interface to display the loaded model."""
         # Destroy existing model details frame if it exists
-        if hasattr(self, 'model_details_frame') and self.model_details_frame:
-            self.model_details_frame.destroy()
+        if hasattr(self, 'model_details') and self.model_details:
+            self.model_details.destroy()
 
         # Hide unnecessary sections
         self.file_path_label.pack_forget()
@@ -562,8 +595,8 @@ class DataLoaderApp:
         self.graph_frame_border.pack_forget()
 
         # Create a new frame to display the model details
-        self.model_details_frame = tk.Frame(self.root, bg="white")
-        self.model_details_frame.pack(fill=tk.BOTH, expand=True)
+        self.model_details = tk.Frame(self.root, bg="white")
+        self.model_details.pack(fill=tk.BOTH, expand=True)
 
         # Display the model details
         model_info = (
@@ -573,7 +606,7 @@ class DataLoaderApp:
             f"Description: {self.model_description}"
         )
         model_info_label = tk.Label(
-            self.model_details_frame,
+            self.model_details,
             text=model_info,
             font=("Helvetica", 12),
             fg="black",
