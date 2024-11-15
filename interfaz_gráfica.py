@@ -329,6 +329,19 @@ class DataLoaderApp:
             self.data_frame = self.data_frame.dropna()
             messagebox.showinfo("Success", "Rows with NaN values removed.")
         else:
+            if option == "4":  # Fill with constant
+                constant_value_input = simpledialog.askstring(
+                    "Input",
+                    "Enter a constant value:"
+                )
+                if constant_value_input is None:
+                    messagebox.showinfo("Cancelled", "Operation cancelled by user.")
+                    return  # Exit the method if user cancels
+                try:
+                    constant_value = float(constant_value_input)
+                except ValueError:
+                    messagebox.showerror("Error", "Invalid constant value entered.")
+                    return  # Exit the method if invalid input
             numeric_columns = self.data_frame.select_dtypes(
                 include=['float64', 'int64']
             ).columns
@@ -348,32 +361,21 @@ class DataLoaderApp:
                         rounded_median_value
                     )
                 elif option == "4":  # Fill with constant
-                    constant_value = simpledialog.askstring(
-                        "Input",
-                        "Enter a constant value:"
+                    self.data_frame[col] = self.data_frame[col].fillna(
+                        constant_value
                     )
-                    if constant_value is not None:
-                        try:
-                            constant_value = float(constant_value)
-                            self.data_frame[col] = self.data_frame[col].fillna(
-                                constant_value
-                            )
-                        except ValueError:
-                            messagebox.showerror(
-                                "Error",
-                                "Invalid constant value entered."
-                            )
             # Display success message after processing
             if option == "2":
                 messagebox.showinfo("Success", "NaN values filled with column mean.")
             elif option == "3":
                 messagebox.showinfo("Success", "NaN values filled with column median.")
-            elif option == "4" and constant_value is not None:
+            elif option == "4":
                 messagebox.showinfo(
                     "Success",
                     f"NaN values filled with constant value: {constant_value}"
                 )
         self.display_data()
+
 
     def get_decimal_places(self, series):
         """Returns the maximum number of decimal places in the series."""
