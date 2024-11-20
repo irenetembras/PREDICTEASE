@@ -1,17 +1,28 @@
+import threading
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
-from modules.data_operations import *
-from modules.model_operations import *
-from modules.modulo_importacion import import_file
+from modules.model_operations import load_model
+
 
 class DataLoaderApp:
     """
     Application to load and visualize data, manage NaNs, and create a
     linear regression model with error metrics.
     """
+    # Import necessary functions for operations.
     from modules.model_operations import create_regression_model, save_model
-    from modules.data_operations import process_import, display_data, handle_nan
-    from modules.main_window import reset_controls, clear_graph, get_decimal_places, update_interface_for_model, populate_selectors
+    from modules.data_operations import (
+        process_import,
+        display_data,
+        handle_nan
+    )
+    from modules.main_window import (
+        reset_controls,
+        clear_graph,
+        get_decimal_places,
+        update_interface_for_model,
+        populate_selectors,
+    )
 
     def __init__(self, root):
         root.state('zoomed')
@@ -20,11 +31,11 @@ class DataLoaderApp:
         self.root.configure(bg="white")
         self.font_style = ("Helvetica", 10)
 
-        # Create the toolbar
+        # Create the toolbar at the top of the window.
         self.toolbar = tk.Frame(root, bg="#e0e0e0", height=40)
         self.toolbar.pack(side="top", fill="x")
 
-        # File menu button
+        # File menu button setup.
         self.file_menu_button = tk.Menubutton(
             self.toolbar,
             text="File",
@@ -47,7 +58,7 @@ class DataLoaderApp:
         self.file_menu_button.config(menu=self.file_menu)
         self.file_menu_button.pack(side="left", padx=10)
 
-        # Data menu button
+        # Data menu button setup for NaN management.
         self.data_menu_button = tk.Menubutton(
             self.toolbar,
             text="Data",
@@ -59,6 +70,7 @@ class DataLoaderApp:
             pady=5
         )
         self.data_menu = tk.Menu(self.data_menu_button, tearoff=0)
+        # Adding commands to handle NaN values in the dataset.
         self.data_menu.add_command(
             label="Remove rows with NaN",
             command=lambda: self.handle_nan(option="1")
@@ -78,7 +90,7 @@ class DataLoaderApp:
         self.data_menu_button.config(menu=self.data_menu)
         self.data_menu_button.pack(side="left", padx=2)
 
-        # Label to display the selected file path
+        # Label to display the selected file path.
         self.file_path_label = tk.Label(
             root,
             text="No file selected",
@@ -88,26 +100,19 @@ class DataLoaderApp:
         )
         self.file_path_label.pack(pady=10)
 
-        # Frame for the data table
+        # Frame for the data table.
         self.table_frame_border = tk.Frame(self.root, bg="#cccccc")
-        self.table_frame_border.pack(
-            fill=tk.BOTH, expand=True, padx=10, pady=5)
-        self.table_frame = tk.Frame(
-            self.table_frame_border, bg="#f9f9f9"
-        )
+        self.table_frame_border.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+        self.table_frame = tk.Frame(self.table_frame_border, bg="#f9f9f9")
         self.table_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
-        # Frame for regression controls
+        # Frame for regression controls on the left side.
         self.controls_frame_border = tk.Frame(self.root, bg="#cccccc")
-        self.controls_frame_border.pack(
-            side="left", fill="y", padx=10, pady=5
-        )
-        self.controls_frame = tk.Frame(
-            self.controls_frame_border, bg="#f9f9f9"
-        )
+        self.controls_frame_border.pack(side="left", fill="y", padx=10, pady=5)
+        self.controls_frame = tk.Frame(self.controls_frame_border, bg="#f9f9f9")
         self.controls_frame.pack(fill="both", padx=5, pady=5)
 
-        # Content of the regression control section
+        # Input column selector.
         input_label = tk.Label(
             self.controls_frame,
             text="Select input column:",
@@ -120,6 +125,7 @@ class DataLoaderApp:
         )
         self.input_selector.pack(fill=tk.X, padx=10, pady=5)
 
+        # Output column selector.
         output_label = tk.Label(
             self.controls_frame,
             text="Select output column:",
@@ -132,6 +138,7 @@ class DataLoaderApp:
         )
         self.output_selector.pack(fill=tk.X, padx=10, pady=5)
 
+        # Model description input (optional).
         description_label = tk.Label(
             self.controls_frame,
             text="Enter model description (optional):",
@@ -144,6 +151,7 @@ class DataLoaderApp:
         )
         self.dtext.pack(padx=10, pady=5)
 
+        # Button to create regression model.
         create_button = tk.Button(
             self.controls_frame,
             text="Create Model",
@@ -152,6 +160,7 @@ class DataLoaderApp:
         )
         create_button.pack(pady=10)
 
+        # Button to save the model.
         save_button = tk.Button(
             self.controls_frame,
             text="Save Model",
@@ -160,7 +169,7 @@ class DataLoaderApp:
         )
         save_button.pack(pady=5)
 
-        # Section to display results
+        # Section to display results after model is created.
         self.result_label = tk.Label(
             self.controls_frame,
             text="",
@@ -171,7 +180,7 @@ class DataLoaderApp:
         )
         self.result_label.pack(pady=10)
 
-        # Frame for the graph
+        # Frame for the graph visualization on the right side.
         self.graph_frame_border = tk.Frame(self.root, bg="#cccccc")
         self.graph_frame_border.pack(
             side="right",
@@ -183,7 +192,7 @@ class DataLoaderApp:
         self.graph_frame = tk.Frame(self.graph_frame_border, bg="#f9f9f9")
         self.graph_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
-        # Initialization of variables
+        # Initialization of variables.
         self.df = None
         self.selected_input = None
         self.selected_output = None
@@ -201,42 +210,34 @@ class DataLoaderApp:
         if file_path:
             self.file_path_label.config(text=file_path)
 
-            # If model details frame exists, destroy it
+            # If model details frame exists, destroy it.
             if hasattr(self, 'model_details') and self.model_details:
                 self.model_details.destroy()
 
-            # Ensure data components are visible
+            # Make sure data components are visible.
             self.file_path_label.pack(pady=10)
-            self.table_frame_border.pack(
-                fill=tk.BOTH, expand=True, padx=10, pady=5
-            )
-            self.controls_frame_border.pack(
-                side="left", fill="y", padx=10, pady=5
-            )
-            self.graph_frame_border.pack(
-                side="right",
-                fill=tk.BOTH,
-                expand=True,
-                padx=10,
-                pady=5
-            )
+            self.table_frame_border.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+            self.controls_frame_border.pack(side="left", fill="y", padx=10, pady=5)
+            self.graph_frame_border.pack(side="right", fill=tk.BOTH, expand=True, padx=10, pady=5)
+            
+            # Start processing the file in a separate thread.
             threading.Thread(
                 target=self.process_import,
                 args=(file_path,)
             ).start()
 
-            # Reset the selectors and description
+            # Reset the selectors and description.
             self.reset_controls()
 
-            # Clear the graph
+            # Clear the graph.
             self.clear_graph()
 
     def load_model(self):
         """Method to load a model using the load_model function."""
         file_path = filedialog.askopenfilename(filetypes=[("Model Files", "*.model")])
         if file_path:
-            # Call the load_model function (defined in model_operations)
-            model = load_model(file_path)  # Call the function from the model_operations module
+            # Call the load_model function (defined in model_operations).
+            model = load_model(file_path)
             if model:
                 messagebox.showinfo("Model Loaded", "Model loaded successfully!")
             else:
