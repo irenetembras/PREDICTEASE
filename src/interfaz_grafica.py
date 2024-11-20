@@ -12,7 +12,6 @@ from sklearn.metrics import mean_squared_error, r2_score
 
 import modulo_importacion
 
-
 class DataLoaderApp:
     """
     Application to load and visualize data, manage NaNs, and create a
@@ -410,7 +409,6 @@ class DataLoaderApp:
                 )
         self.display_data()
 
-
     def get_decimal_places(self, series):
         """Returns the maximum number of decimal places in the series."""
         decimals = series.dropna().astype(str).str.split('.').str[1]  # Get the decimal part
@@ -620,8 +618,9 @@ class DataLoaderApp:
         )
         model_info_label.pack(pady=10, expand=True)
 
-
 if __name__ == "__main__":
     root = tk.Tk()
     app = DataLoaderApp(root)
     root.mainloop()
+
+
