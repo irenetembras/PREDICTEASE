@@ -3,6 +3,7 @@ from tkinter import filedialog, messagebox, ttk
 from modules.data_operations import *
 from modules.model_operations import *
 from modules.modulo_importacion import import_file
+
 class DataLoaderApp:
     """
     Application to load and visualize data, manage NaNs, and create a
@@ -11,6 +12,7 @@ class DataLoaderApp:
     from modules.model_operations import create_regression_model, save_model
     from modules.data_operations import process_import, display_data, handle_nan
     from modules.main_window import reset_controls, clear_graph, get_decimal_places, update_interface_for_model, populate_selectors
+
     def __init__(self, root):
         root.state('zoomed')
         self.root = root
@@ -36,10 +38,10 @@ class DataLoaderApp:
         self.file_menu = tk.Menu(self.file_menu_button, tearoff=0)
         self.file_menu.add_command(
             label="Load Dataset", command=self.load_file
-            )
+        )
         self.file_menu.add_command(
             label="Load Model", command=self.load_model
-            )
+        )
         self.file_menu.add_separator()
         self.file_menu.add_command(label="Exit", command=self.root.quit)
         self.file_menu_button.config(menu=self.file_menu)
@@ -92,17 +94,17 @@ class DataLoaderApp:
             fill=tk.BOTH, expand=True, padx=10, pady=5)
         self.table_frame = tk.Frame(
             self.table_frame_border, bg="#f9f9f9"
-                                    )
+        )
         self.table_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
         # Frame for regression controls
         self.controls_frame_border = tk.Frame(self.root, bg="#cccccc")
         self.controls_frame_border.pack(
             side="left", fill="y", padx=10, pady=5
-            )
+        )
         self.controls_frame = tk.Frame(
             self.controls_frame_border, bg="#f9f9f9"
-            )
+        )
         self.controls_frame.pack(fill="both", padx=5, pady=5)
 
         # Content of the regression control section
@@ -115,7 +117,7 @@ class DataLoaderApp:
         input_label.pack(anchor="w", padx=10, pady=5)
         self.input_selector = ttk.Combobox(
             self.controls_frame, state="readonly"
-            )
+        )
         self.input_selector.pack(fill=tk.X, padx=10, pady=5)
 
         output_label = tk.Label(
@@ -127,7 +129,7 @@ class DataLoaderApp:
         output_label.pack(anchor="w", padx=10, pady=5)
         self.output_selector = ttk.Combobox(
             self.controls_frame, state="readonly"
-            )
+        )
         self.output_selector.pack(fill=tk.X, padx=10, pady=5)
 
         description_label = tk.Label(
@@ -139,7 +141,7 @@ class DataLoaderApp:
         description_label.pack(anchor="w", padx=10, pady=5)
         self.dtext = tk.Text(
             self.controls_frame, height=4, width=30
-            )
+        )
         self.dtext.pack(padx=10, pady=5)
 
         create_button = tk.Button(
@@ -207,10 +209,10 @@ class DataLoaderApp:
             self.file_path_label.pack(pady=10)
             self.table_frame_border.pack(
                 fill=tk.BOTH, expand=True, padx=10, pady=5
-                )
+            )
             self.controls_frame_border.pack(
                 side="left", fill="y", padx=10, pady=5
-                )
+            )
             self.graph_frame_border.pack(
                 side="right",
                 fill=tk.BOTH,
@@ -230,12 +232,12 @@ class DataLoaderApp:
             self.clear_graph()
 
     def load_model(self):
-        """Método para cargar un modelo, utilizando la función load_model."""
+        """Method to load a model using the load_model function."""
         file_path = filedialog.askopenfilename(filetypes=[("Model Files", "*.model")])
         if file_path:
-            # Llamamos a la función load_model (definida en model_operations)
-            model = load_model(file_path)  # Llamamos a la función desde el módulo model_operations
+            # Call the load_model function (defined in model_operations)
+            model = load_model(file_path)  # Call the function from the model_operations module
             if model:
-                messagebox.showinfo("Model Loaded", "Modelo cargado correctamente!")
+                messagebox.showinfo("Model Loaded", "Model loaded successfully!")
             else:
-                messagebox.showerror("Error", "No se pudo cargar el modelo.")
+                messagebox.showerror("Error", "Failed to load the model.")

@@ -9,7 +9,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
-from modules.modulo_importacion import import_file  # O las funciones específicas que necesites
+from modules.modulo_importacion import import_file  
 
 
 def process_import(self, file_path):
@@ -22,7 +22,7 @@ def process_import(self, file_path):
                         )
 
                 # Import the file
-                self.df =import_file(file_path)
+                self.df = import_file(file_path)
 
                 # Check if the DataFrame is empty after import
                 if self.df is None or self.df.empty:
@@ -82,17 +82,17 @@ def display_data(self):
             self.reset_controls()
             self.clear_graph()
 
-            # Détruire tout widget existant dans le cadre de la table
+            # Destroy any existing widgets in the table frame
             for widget in self.table_frame.winfo_children():
                 widget.destroy()
 
-            # Créer les barres de défilement verticales et horizontales
+            # Create vertical and horizontal scrollbars
             vsb = ttk.Scrollbar(self.table_frame, orient="vertical")
             vsb.pack(side='right', fill='y')
             hsb = ttk.Scrollbar(self.table_frame, orient="horizontal")
             hsb.pack(side='bottom', fill='x')
 
-            # Créer la vue en arbre pour afficher les données
+            # Create the treeview to display the data
             self.table = ttk.Treeview(
                 self.table_frame,
                 yscrollcommand=vsb.set,
@@ -101,11 +101,11 @@ def display_data(self):
             )
             self.table.pack(fill=tk.BOTH, expand=True)
 
-            # Configurer les barres de défilement
+            # Configure the scrollbars
             vsb.config(command=self.table.yview)
             hsb.config(command=self.table.xview)
 
-            # Configurer les colonnes de la table
+            # Configure the table columns
             self.table["columns"] = list(self.df.columns)
             self.table["show"] = "headings"
 
@@ -113,7 +113,7 @@ def display_data(self):
                 self.table.heading(col, text=col)
                 self.table.column(col, anchor="center", width=100)
 
-            # Insérer les données dans la table
+            # Insert the data into the table
             for _, row in self.df.iterrows():
                 self.table.insert("", "end", values=list(row))
 
