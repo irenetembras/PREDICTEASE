@@ -237,7 +237,7 @@ class DataLoaderApp:
 
     def load_model(self):
         """Method to load a model using the load_model function."""
-        file_path = filedialog.askopenfilename(filetypes=[("Model Files", "*.model")])
+        file_path = filedialog.askopenfilename(filetypes=[("Pickle files", "*.pkl"), ("Joblib files", "*.joblib")])
         if file_path:
             # Call the load_model function (defined in model_operations).
             model = load_model(file_path)
