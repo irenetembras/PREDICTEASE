@@ -1,8 +1,8 @@
 import tkinter as tk
 
 
-class MyApplication:
-    def __init__(self, root):
+
+def __init__(self, root):
         """
         Inicializa la aplicación con la ventana principal (root).
 
@@ -13,7 +13,7 @@ class MyApplication:
         # como los widgets, DataFrame, etc.
         # ...
 
-    def reset_controls(self):
+def reset_controls(self):
         """
         Resetea los selectores de entrada/salida y el campo de descripción.
         Limpia cualquier dato en los widgets de la interfaz.
@@ -23,14 +23,14 @@ class MyApplication:
         self.dtext.delete('1.0', tk.END)  # Elimina todo el texto.
         self.result_label.config(text='')  # Limpia el resultado.
 
-    def clear_graph(self):
+def clear_graph(self):
         """
         Limpia el gráfico en el panel de gráficos eliminando todos los widgets.
         """
         for widget in self.graph_frame.winfo_children():
             widget.destroy()  # Borra los widgets del gráfico.
 
-    def get_decimal_places(self, series):
+def get_decimal_places(self, series):
         """
         Obtiene el número máximo de decimales de una serie de datos.
 
@@ -41,7 +41,7 @@ class MyApplication:
         decimals = series.dropna().astype(str).str.split('.').str[1]
         return decimals.str.len().max() if not decimals.empty else 0
 
-    def update_interface_for_model(self, formula, r2, mse):
+def update_interface_for_model(self, formula, r2, mse):
         """
         Actualiza la interfaz para mostrar los detalles del modelo cargado.
 
@@ -82,7 +82,7 @@ class MyApplication:
             )
             model_info_label.pack(pady=10, expand=True)
 
-    def populate_selectors(self):
+def populate_selectors(self):
         """
         Rellena los selectores de columna con las columnas del DataFrame.
         Si el DataFrame es válido, actualiza los valores

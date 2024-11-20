@@ -2,6 +2,7 @@ import threading
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 from modules.model_operations import load_model
+import modules.main_window
 
 
 class DataLoaderApp:
@@ -16,13 +17,15 @@ class DataLoaderApp:
         display_data,
         handle_nan
     )
+
     from modules.main_window import (
-        reset_controls,
-        clear_graph,
-        get_decimal_places,
-        update_interface_for_model,
+        reset_controls, 
+        clear_graph, 
+        get_decimal_places, 
+        update_interface_for_model, 
         populate_selectors,
     )
+    
 
     def __init__(self, root):
         root.state('zoomed')
