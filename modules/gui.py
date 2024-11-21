@@ -20,12 +20,10 @@ class DataLoaderApp:
 
     from modules.main_window import (
         reset_controls, 
-        clear_graph, 
-        get_decimal_places, 
+        clear_graph,  
         update_interface_for_model, 
         populate_selectors,
     )
-    
 
     def __init__(self, root):
         root.state('zoomed')
@@ -178,8 +176,12 @@ class DataLoaderApp:
             text="",
             font=self.font_style,
             fg="blue",
-            justify="left",
-            bg="#f9f9f9"
+            justify="center",
+            bg="#f9f9f9",
+            height=6,
+            width=40,
+            anchor="center",
+            wraplength=380
         )
         self.result_label.pack(pady=10)
 
