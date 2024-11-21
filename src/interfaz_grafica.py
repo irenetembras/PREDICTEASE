@@ -375,7 +375,7 @@ class DataLoaderApp:
                 except ValueError:
                     messagebox.showerror("Error", "Invalid constant value entered.")
                     return  # Exit the method if invalid input
-            numeric_columns = self.data_frame.select_dtypes(
+            numeric_columns = self.df.select_dtypes(
                 include=['float64', 'int64']
             ).columns
             for col in numeric_columns:
@@ -392,7 +392,7 @@ class DataLoaderApp:
                         rounded_median_value
                     )
                 elif option == "4":  # Fill with constant
-                    self.data_frame[col] = self.data_frame[col].fillna(
+                    self.df[col] = self.df[col].fillna(
                         constant_value
                     )
             # Display success message after processing
