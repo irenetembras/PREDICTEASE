@@ -24,7 +24,7 @@ def process_import(self, file_path):
                 )
 
         # Check if the file contains only empty columns.
-        if not self.df.columns.any() or self.df.dropna(how = 'all').empty:
+        if not self.df.columns.any() or self.df.dropna(how='all').empty:
             raise ValueError(
                 "The imported file has only empty columns or rows."
                 )
@@ -58,19 +58,19 @@ def populate_selectors(self):
 def display_data(self):
     """Displays the data in a table."""
     # Ensure data frames are visible.
-    self.file_path_label.pack(pady = 10)
+    self.file_path_label.pack(pady=10)
     self.table_frame_border.pack(
-        fill = tk.BOTH, expand = True, padx = 10, pady = 5
+        fill=tk.BOTH, expand=True, padx=10, pady=5
         )
     self.controls_frame_border.pack(
-        side = "left", fill = "y", padx = 10, pady = 5
+        side="left", fill="y", padx=10, pady=5
         )
     self.graph_frame_border.pack(
-        side = "right",
-        fill = tk.BOTH,
-        expand = True,
-        padx = 10,
-        pady = 5
+        side="right",
+        fill=tk.BOTH,
+        expand=True,
+        padx=10,
+        pady=5
     )
 
     # Reset controls and clear graph.
@@ -82,35 +82,35 @@ def display_data(self):
         widget.destroy()
 
     # Create vertical and horizontal scrollbars.
-    vsb = ttk.Scrollbar(self.table_frame, orient = "vertical")
-    vsb.pack(side = 'right', fill = 'y')
-    hsb = ttk.Scrollbar(self.table_frame, orient = "horizontal")
-    hsb.pack(side = 'bottom', fill = 'x')
+    vsb = ttk.Scrollbar(self.table_frame, orient="vertical")
+    vsb.pack(side='right', fill='y')
+    hsb = ttk.Scrollbar(self.table_frame, orient="horizontal")
+    hsb.pack(side='bottom', fill='x')
 
     # Create the treeview to display the data.
     self.table = ttk.Treeview(
         self.table_frame,
-        yscrollcommand = vsb.set,
-        xscrollcommand = hsb.set,
-        style = "Treeview"
+        yscrollcommand=vsb.set,
+        xscrollcommand=hsb.set,
+        style="Treeview"
     )
-    self.table.pack(fill = tk.BOTH, expand = True)
+    self.table.pack(fill=tk.BOTH, expand=True)
 
     # Configure the scrollbars.
-    vsb.config(command = self.table.yview)
-    hsb.config(command = self.table.xview)
+    vsb.config(command=self.table.yview)
+    hsb.config(command=self.table.xview)
 
     # Configure the table columns.
     self.table["columns"] = list(self.df.columns)
     self.table["show"] = "headings"
 
     for col in self.df.columns:
-        self.table.heading(col, text = col)
-        self.table.column(col, anchor = "center", width = 100)
+        self.table.heading(col, text=col)
+        self.table.column(col, anchor="center", width=100)
 
     # Insert the data into the table.
     for _, row in self.df.iterrows():
-        self.table.insert("", "end", values = list(row))
+        self.table.insert("", "end", values=list(row))
 
 
 def handle_nan(self, option):
@@ -139,7 +139,7 @@ def handle_nan(self, option):
                                      "Invalid constant value entered.")
                 return  # Exit the method if invalid input.
         numeric_columns = self.df.select_dtypes(
-            include = ['float64', 'int64']
+            include=['float64', 'int64']
         ).columns
         for col in numeric_columns:
             if option == "2":  # Fill with mean.

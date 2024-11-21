@@ -6,13 +6,15 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
 import joblib
+
+
 class DataLoaderApp:
     """
     Application to load and visualize data, manage NaNs, and create a
     linear regression model with error metrics.
     """
     # Import necessary functions for operations.
-    
+
     from modules.data_operations import (
         process_import,
         display_data,
@@ -21,11 +23,9 @@ class DataLoaderApp:
     )
 
     from modules.main_window import (
-        reset_controls, 
-        clear_graph,  
-        update_interface_for_model, 
+        reset_controls,
+        clear_graph,
     )
-    
 
     def __init__(self, root):
         root.state('zoomed')
@@ -105,14 +105,19 @@ class DataLoaderApp:
 
         # Frame for the data table.
         self.table_frame_border = tk.Frame(self.root, bg="#cccccc")
-        self.table_frame_border.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+        self.table_frame_border.pack(
+            fill=tk.BOTH,
+            expand=True,
+            padx=10,
+            pady=5)
         self.table_frame = tk.Frame(self.table_frame_border, bg="#f9f9f9")
         self.table_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
         # Frame for regression controls on the left side.
         self.controls_frame_border = tk.Frame(self.root, bg="#cccccc")
         self.controls_frame_border.pack(side="left", fill="y", padx=10, pady=5)
-        self.controls_frame = tk.Frame(self.controls_frame_border, bg="#f9f9f9")
+        self.controls_frame = tk.Frame(self.controls_frame_border,
+                                       bg="#f9f9f9")
         self.controls_frame.pack(fill="both", padx=5, pady=5)
 
         # Input column selector.
@@ -223,10 +228,20 @@ class DataLoaderApp:
 
             # Make sure data components are visible.
             self.file_path_label.pack(pady=10)
-            self.table_frame_border.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
-            self.controls_frame_border.pack(side="left", fill="y", padx=10, pady=5)
-            self.graph_frame_border.pack(side="right", fill=tk.BOTH, expand=True, padx=10, pady=5)
-            
+            self.table_frame_border.pack(fill=tk.BOTH,
+                                         expand=True,
+                                         padx=10,
+                                         pady=5)
+            self.controls_frame_border.pack(side="left",
+                                            fill="y",
+                                            padx=10,
+                                            pady=5)
+            self.graph_frame_border.pack(side="right",
+                                         fill=tk.BOTH,
+                                         expand=True,
+                                         padx=10,
+                                         pady=5)
+
             # Start processing the file in a separate thread.
             threading.Thread(
                 target=self.process_import,
@@ -283,7 +298,8 @@ class DataLoaderApp:
                     f"{error_message}\n\nMaybe try loading another file?"
                 )
                 if not retry:
-                    break  
+                    break
+
     def create_regression_model(self):
         """Creates a linear regression model using the selected columns."""
         if self.df is None:
@@ -351,7 +367,6 @@ class DataLoaderApp:
                 f"An error occurred while creating the model: {e}"
             )
 
-
     def save_model(self):
         """Saves the linear regression model data to a file."""
         if self.model is None:
@@ -411,54 +426,6 @@ class DataLoaderApp:
                 "Error",
                 f"An error occurred while saving the model: {e}"
             )
-
-
-    def load_model(self):
-        """Load a saved model and update the interface accordingly."""
-        while True:
-            # Prompt user to select a file to load.
-            file_path = filedialog.askopenfilename(
-                filetypes=[
-                    ("Pickle files", "*.pkl"),
-                    ("Joblib files", "*.joblib")
-                ]
-            )
-            if not file_path:
-                break  # Exit if no file is selected.
-
-            try:
-                # Load the model from the selected file.
-                model_data = joblib.load(file_path)
-
-                # Extract and update model information.
-                self.selected_input = model_data['input_column']
-                self.selected_output = model_data['output_column']
-                self.model_description = model_data.get(
-                    'model_description',
-                    'No description provided'
-                )
-                formula = model_data['formula']
-                r2 = model_data['metrics']['R²']
-                mse = model_data['metrics']['MSE']
-
-                # Update the interface to display the model information.
-                self.update_interface_for_model(formula, r2, mse)
-
-                # Reset the controls to default.
-                self.reset_controls()
-
-                # Confirmation message after successfully loading the model.
-                messagebox.showinfo("Success", "Model loaded successfully.")
-                break  # Exit the loop after successful load.
-
-            except Exception as e:
-                error_message = f"Error while loading the model: {str(e)}"
-                retry = messagebox.askretrycancel(
-                    "Error",
-                    f"{error_message}\n\nMaybe try loading another file?"
-                )
-                if not retry:
-                    break
 
     def update_interface_for_model(self, formula, r2, mse):
         """Update the interface to display the loaded model."""
