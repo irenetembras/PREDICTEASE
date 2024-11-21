@@ -69,14 +69,3 @@ def update_interface_for_model(self, formula, r2, mse):
                 bg="white"
             )
             model_info_label.pack(pady=10, expand=True)
-
-def populate_selectors(self):
-        """
-        Rellena los selectores de columna con las columnas del DataFrame.
-        Si el DataFrame es válido, actualiza los valores
-        de los selectores de entrada y salida.
-        """
-        if self.df is not None:  # Si el DataFrame no es None.
-            columns = list(self.df.columns)  # Obtiene columnas del DataFrame.
-            self.input_selector['values'] = columns  # Actualiza entrada.
-            self.output_selector['values'] = columns  # Actualiza salida.

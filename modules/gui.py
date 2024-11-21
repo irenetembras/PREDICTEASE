@@ -15,14 +15,14 @@ class DataLoaderApp:
     from modules.data_operations import (
         process_import,
         display_data,
-        handle_nan
+        handle_nan,
+        populate_selectors
     )
 
     from modules.main_window import (
         reset_controls, 
         clear_graph,  
         update_interface_for_model, 
-        populate_selectors,
     )
 
     def __init__(self, root):
