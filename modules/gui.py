@@ -23,8 +23,13 @@ class DataLoaderApp:
     )
 
     from modules.main_window import (
+<<<<<<< HEAD
         reset_controls,
         clear_graph,
+=======
+        reset_controls, 
+        clear_graph,   
+>>>>>>> b533f1f9a658cd024e1b3dee65b2d3fa4fe982e6
     )
 
     def __init__(self, root):

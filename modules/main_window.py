@@ -32,6 +32,7 @@ def clear_graph(self):
         widget.destroy()  # Borra los widgets del gráfico.
 
 
+<<<<<<< HEAD
 def update_interface_for_model(self, formula, r2, mse):
     """
     Actualiza la interfaz para mostrar los detalles del modelo cargado.
@@ -72,3 +73,5 @@ def update_interface_for_model(self, formula, r2, mse):
             bg="white"
         )
         model_info_label.pack(pady=10, expand=True)
+=======
+>>>>>>> b533f1f9a658cd024e1b3dee65b2d3fa4fe982e6
