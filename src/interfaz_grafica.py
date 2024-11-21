@@ -170,8 +170,12 @@ class DataLoaderApp:
             text="",
             font=self.font_style,
             fg="blue",
-            justify="left",
-            bg="#f9f9f9"
+            justify="center",
+            bg="#f9f9f9",
+            height=6,
+            width=40,
+            anchor="center",
+            wraplength=380
         )
         self.result_label.pack(pady=10)
 
@@ -409,11 +413,6 @@ class DataLoaderApp:
                 )
         self.display_data()
 
-    def get_decimal_places(self, series):
-        """Returns the maximum number of decimal places in the series."""
-        decimals = series.dropna().astype(str).str.split('.').str[1]  # Get the decimal part
-        return decimals.str.len().max() if not decimals.empty else 0
-
     def create_regression_model(self):
         """Creates a linear regression model using the selected columns."""
         if self.df is None:
@@ -462,7 +461,8 @@ class DataLoaderApp:
             self.clear_graph()
 
             # Create and display the graph
-            fig, ax = plt.subplots(figsize=(10, 5))
+            fig, ax = plt.subplots()
+            fig.tight_layout(pad=2.0)
             ax.scatter(X, y, color="blue", label="Data Points")
             ax.plot(X, predictions, color="red", label="Regression Line")
             ax.set_xlabel(self.selected_input)
