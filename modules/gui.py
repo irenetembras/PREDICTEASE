@@ -22,8 +22,7 @@ class DataLoaderApp:
 
     from modules.main_window import (
         reset_controls, 
-        clear_graph,  
-        update_interface_for_model, 
+        clear_graph,   
     )
     
 
