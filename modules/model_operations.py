@@ -56,7 +56,8 @@ def create_regression_model(self):
         self.clear_graph()
 
         # Create and display the regression line plot.
-        fig, ax = plt.subplots(figsize=(10, 5))
+        fig, ax = plt.subplots()
+        fig.tight_layout(pad=2.0)
         ax.scatter(X, y, color="blue", label="Data Points")
         ax.plot(X, predictions, color="red", label="Regression Line")
         ax.set_xlabel(self.selected_input)

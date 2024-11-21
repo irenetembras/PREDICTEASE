@@ -1,7 +1,6 @@
 import tkinter as tk
 
 
-
 def __init__(self, root):
         """
         Inicializa la aplicación con la ventana principal (root).
@@ -29,17 +28,6 @@ def clear_graph(self):
         """
         for widget in self.graph_frame.winfo_children():
             widget.destroy()  # Borra los widgets del gráfico.
-
-def get_decimal_places(self, series):
-        """
-        Obtiene el número máximo de decimales de una serie de datos.
-
-        :param series: Serie de datos
-        (por ejemplo, una columna de un DataFrame de pandas).
-        :return: El número máximo de decimales en los valores numéricos.
-        """
-        decimals = series.dropna().astype(str).str.split('.').str[1]
-        return decimals.str.len().max() if not decimals.empty else 0
 
 def update_interface_for_model(self, formula, r2, mse):
         """
@@ -81,14 +69,3 @@ def update_interface_for_model(self, formula, r2, mse):
                 bg="white"
             )
             model_info_label.pack(pady=10, expand=True)
-
-def populate_selectors(self):
-        """
-        Rellena los selectores de columna con las columnas del DataFrame.
-        Si el DataFrame es válido, actualiza los valores
-        de los selectores de entrada y salida.
-        """
-        if self.df is not None:  # Si el DataFrame no es None.
-            columns = list(self.df.columns)  # Obtiene columnas del DataFrame.
-            self.input_selector['values'] = columns  # Actualiza entrada.
-            self.output_selector['values'] = columns  # Actualiza salida.

@@ -170,8 +170,12 @@ class DataLoaderApp:
             text="",
             font=self.font_style,
             fg="blue",
-            justify="left",
-            bg="#f9f9f9"
+            justify="center",
+            bg="#f9f9f9",
+            height=6,
+            width=40,
+            anchor="center",
+            wraplength=380
         )
         self.result_label.pack(pady=10)
 
@@ -375,7 +379,7 @@ class DataLoaderApp:
                 except ValueError:
                     messagebox.showerror("Error", "Invalid constant value entered.")
                     return  # Exit the method if invalid input
-            numeric_columns = self.data_frame.select_dtypes(
+            numeric_columns = self.df.select_dtypes(
                 include=['float64', 'int64']
             ).columns
             for col in numeric_columns:
@@ -392,7 +396,7 @@ class DataLoaderApp:
                         rounded_median_value
                     )
                 elif option == "4":  # Fill with constant
-                    self.data_frame[col] = self.data_frame[col].fillna(
+                    self.df[col] = self.df[col].fillna(
                         constant_value
                     )
             # Display success message after processing
@@ -408,11 +412,6 @@ class DataLoaderApp:
                     f"NaN values filled with constant value: {constant_value}"
                 )
         self.display_data()
-
-    def get_decimal_places(self, series):
-        """Returns the maximum number of decimal places in the series."""
-        decimals = series.dropna().astype(str).str.split('.').str[1]  # Get the decimal part
-        return decimals.str.len().max() if not decimals.empty else 0
 
     def create_regression_model(self):
         """Creates a linear regression model using the selected columns."""
@@ -462,7 +461,8 @@ class DataLoaderApp:
             self.clear_graph()
 
             # Create and display the graph
-            fig, ax = plt.subplots(figsize=(10, 5))
+            fig, ax = plt.subplots()
+            fig.tight_layout(pad=2.0)
             ax.scatter(X, y, color="blue", label="Data Points")
             ax.plot(X, predictions, color="red", label="Regression Line")
             ax.set_xlabel(self.selected_input)

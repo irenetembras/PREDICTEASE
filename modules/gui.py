@@ -1,10 +1,6 @@
 import threading
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
-from modules.model_operations import load_model
-import modules.main_window
-import tkinter as tk
-from tkinter import filedialog, messagebox
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from sklearn.linear_model import LinearRegression
@@ -20,25 +16,16 @@ class DataLoaderApp:
     from modules.data_operations import (
         process_import,
         display_data,
-        handle_nan
+        handle_nan,
+        populate_selectors
     )
 
     from modules.main_window import (
         reset_controls, 
-        clear_graph, 
-        get_decimal_places, 
+        clear_graph,  
         update_interface_for_model, 
-        populate_selectors,
     )
     
-    import tkinter as tk
-    from tkinter import filedialog, messagebox
-
-  
-    import matplotlib.pyplot as plt
-    from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-    from sklearn.linear_model import LinearRegression
-    from sklearn.metrics import mean_squared_error, r2_score
 
     def __init__(self, root):
         root.state('zoomed')
@@ -191,8 +178,12 @@ class DataLoaderApp:
             text="",
             font=self.font_style,
             fg="blue",
-            justify="left",
-            bg="#f9f9f9"
+            justify="center",
+            bg="#f9f9f9",
+            height=6,
+            width=40,
+            anchor="center",
+            wraplength=380
         )
         self.result_label.pack(pady=10)
 
@@ -249,16 +240,50 @@ class DataLoaderApp:
             self.clear_graph()
 
     def load_model(self):
-        """Method to load a model using the load_model function."""
-        file_path = filedialog.askopenfilename(filetypes=[("Pickle files", "*.pkl"), ("Joblib files", "*.joblib")])
-        if file_path:
-            # Call the load_model function (defined in model_operations).
-            model = load_model(file_path)
-            if model:
-                messagebox.showinfo("Model Loaded", "Model loaded successfully!")
-            else:
-                messagebox.showerror("Error", "Failed to load the model.")
+        """Load a saved model and update the interface accordingly."""
+        while True:
+            file_path = filedialog.askopenfilename(
+                filetypes=[
+                    ("Pickle files", "*.pkl"),
+                    ("Joblib files", "*.joblib")
+                ]
+            )
+            if not file_path:
+                break  # Exit if no file is selected
 
+            try:
+                # Load the model
+                model_data = joblib.load(file_path)
+
+                # Extract model information
+                self.selected_input = model_data['input_column']
+                self.selected_output = model_data['output_column']
+                self.model_description = model_data.get(
+                    'model_description',
+                    'No description provided'
+                )
+                formula = model_data['formula']
+                r2 = model_data['metrics']['R²']
+                mse = model_data['metrics']['MSE']
+
+                # Update the interface to display the model information
+                self.update_interface_for_model(formula, r2, mse)
+
+                # Reset controls
+                self.reset_controls()
+
+                # Confirmation message
+                messagebox.showinfo("Success", "Model loaded successfully.")
+                break  # Exit the loop after successful load
+
+            except Exception as e:
+                error_message = f"Error while loading the model: {str(e)}"
+                retry = messagebox.askretrycancel(
+                    "Error",
+                    f"{error_message}\n\nMaybe try loading another file?"
+                )
+                if not retry:
+                    break  
     def create_regression_model(self):
         """Creates a linear regression model using the selected columns."""
         if self.df is None:
