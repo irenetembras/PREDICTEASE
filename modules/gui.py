@@ -27,6 +27,7 @@ class DataLoaderApp:
         clear_graph 
     )
 
+
     def __init__(self, root):
         root.state('zoomed')
         self.root = root
@@ -92,6 +93,25 @@ class DataLoaderApp:
         )
         self.data_menu_button.config(menu=self.data_menu)
         self.data_menu_button.pack(side="left", padx=2)
+
+                # Help menu button setup.
+        self.help_menu_button = tk.Menubutton(
+            self.toolbar,
+            text="Help",  # Texto del botón
+            font=self.font_style,
+            bg="#e0e0e0",
+            fg="black",
+            bd=0,
+            padx=20,
+            pady=5
+        )
+        self.help_menu = tk.Menu(self.help_menu_button, tearoff=0)  
+        self.help_menu.add_command(
+            label="Tutorial",  
+            command=self.display_tutorial 
+        )
+        self.help_menu_button.config(menu=self.help_menu)
+        self.help_menu_button.pack(side="left", padx=2)  
 
         # Label to display the selected file path.
         self.file_path_label = tk.Label(
@@ -211,6 +231,18 @@ class DataLoaderApp:
         self.model_description = ""
         self.model = None
 
+        messagebox.showinfo(
+            "Welcome to Data Loader",
+            "Welcome to the Data Loader application!\n\n"
+            "This tool allows you to:\n"
+            "1. Load and Visualize Data\n"
+            "2. Manage Missing Values\n"
+            "3. Create Linear Regression Models\n"
+            "4. Save and Load Models\n\n"
+            "To get started:\n"
+            "Navigate to the 'Help' and click 'Tutorial'.\n"
+        )
+
     def load_file(self):
         """Loads a data file and processes it."""
         file_types = [
@@ -300,6 +332,67 @@ class DataLoaderApp:
                 if not retry:
                     break
 
+    def display_tutorial(self):
+        """Displays frequently asked questions."""
+        messagebox.showinfo(
+            "Tutorial",
+            "Welcome to the step-by-step tutorial!\n\n"
+            "Step 1: Start by loading a dataset.\n"
+            "   -Use the 'File' button, then click 'Load Dataset' to select a file from your device.\n"
+            "   -Once the dataset is loaded, you'll be able to view the data on screen.\n\n"
+            "Step 2: Fill in any missing (NaN) values.\n"
+            "   -Use the options available in the 'Data' button.\n\n"
+            "Step 3: Create a linear regression model.\n"
+            "   -Select input/output columns and description (optional) and then click 'Create Model'.\n\n"
+            "Step 4: Save your model to your device.\n"
+            "   -Click 'Save Model' to store the model for later use.\n\n"
+            "Step 5: Load a previously saved model.\n"
+            "   -Use the 'File' button, and then click 'Load Model' to load a model from your device.\n\n"
+            "Congratulations, you have completed the tutorial!\n"
+        )
+
+    def show_loading_indicator(self, message):
+        """
+        Displays a larger, centered loading indicator window with a progress bar.
+        
+        Parameters:
+        - message (str): The message to display above the progress bar.
+        """
+        self.loading_window = tk.Toplevel(self.root)
+        self.loading_window.title("Loading")
+        self.loading_window.resizable(False, False)
+        self.loading_window.grab_set()  # Prevent interaction with the main window
+
+        # Define the size of the window
+        width = 500  # Increased width
+        height = 200  # Increased height
+
+        # Calculate x and y coordinates to center the window
+        screen_width = self.loading_window.winfo_screenwidth()
+        screen_height = self.loading_window.winfo_screenheight()
+        x = (screen_width - width) // 2
+        y = (screen_height - height) // 2
+
+        # Set the geometry of the window
+        self.loading_window.geometry(f"{width}x{height}+{x}+{y}")
+
+        # Create and pack the message label
+        label = tk.Label(self.loading_window, text=message, font=("Helvetica", 12))
+        label.pack(pady=30)
+
+        # Create and pack the progress bar
+        progress = ttk.Progressbar(self.loading_window, mode='indeterminate', length=400)
+        progress.pack(pady=20)
+        progress.start(10)  # Adjust the speed as needed
+
+    def hide_loading_indicator(self):
+        """
+        Closes the loading indicator window.
+        """
+        if hasattr(self, 'loading_window') and self.loading_window:
+            self.loading_window.destroy()
+            self.loading_window = None
+
     def create_regression_model(self):
         """Creates a linear regression model using the selected columns."""
         if self.df is None:
@@ -323,6 +416,17 @@ class DataLoaderApp:
             )
             if not proceed:
                 return
+        
+        self.show_loading_indicator("Creating regression model, please wait...")
+
+        # Start a new thread for model creation
+        threading.Thread(target=self._create_model_thread).start()
+
+    def _create_model_thread(self):
+        """
+        Threaded function to create the regression model.
+        This ensures that the GUI remains responsive during model creation.
+        """
 
         try:
             X = self.df[[self.selected_input]].values
@@ -336,18 +440,14 @@ class DataLoaderApp:
 
             intercept = self.model.intercept_
             coef = self.model.coef_[0]
-            formula = (
-                f"{self.selected_output} = {coef:.2f} * {self.selected_input}"
-                f" + {intercept:.2f}"
-            )
-            self.result_label.config(
-                text=f"Formula: {formula}\nR²: {r2:.2f}\nMSE: {mse:.2f}"
-            )
+            formula = f"{self.selected_output} = {coef:.2f} * {self.selected_input} + {intercept:.2f}"
+            result_text = f"Formula: {formula}\nR²: {r2:.2f}\nMSE: {mse:.2f}"
 
-            # Clear previous graph to avoid overlap with new one.
-            self.clear_graph()
+            # Update the result label in the main thread
+            self.root.after(0, lambda: self.result_label.config(text=result_text))
 
             # Create and display the regression line plot.
+            self.root.after(0, self.clear_graph)
             fig, ax = plt.subplots(figsize=(10, 5))
             ax.scatter(X, y, color="blue", label="Data Points")
             ax.plot(X, predictions, color="red", label="Regression Line")
@@ -359,13 +459,17 @@ class DataLoaderApp:
             # Embed the plot in the Tkinter window.
             canvas = FigureCanvasTkAgg(fig, master=self.graph_frame)
             canvas.draw()
-            canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+            self.root.after(0, lambda: canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True))
+
+            # Inform the user of successful model creation
+            self.root.after(0, lambda: messagebox.showinfo("Success", "Regression model created successfully."))
 
         except Exception as e:
-            messagebox.showerror(
-                "Error",
-                f"An error occurred while creating the model: {e}"
-            )
+            error_message = f"An error occurred while creating the model: {str(e)}"
+            self.root.after(0, lambda: messagebox.showerror("Error", error_message))
+        finally:
+            # Hide the loading indicator regardless of success or failure
+            self.root.after(0, self.hide_loading_indicator)
 
     def save_model(self):
         """Saves the linear regression model data to a file."""

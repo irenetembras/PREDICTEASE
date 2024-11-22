@@ -7,6 +7,7 @@ from modules.modulo_importacion import import_file
 
 def process_import(self, file_path):
     """Processes the import of the selected file."""
+    self.show_loading_indicator("Loading dataset, please wait...")
     try:
         # Check file size before importing.
         if os.path.getsize(file_path) == 0:
@@ -45,6 +46,8 @@ def process_import(self, file_path):
             0,
             lambda: messagebox.showerror("Error", error_message)
         )
+    finally:
+            self.hide_loading_indicator()
 
 
 def populate_selectors(self):
