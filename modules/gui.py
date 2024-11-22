@@ -24,9 +24,7 @@ class DataLoaderApp:
 
     from modules.main_window import (
         reset_controls,
-        clear_graph,
-        reset_controls, 
-        clear_graph,   
+        clear_graph 
     )
 
     def __init__(self, root):
