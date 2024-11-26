@@ -242,6 +242,23 @@ class DataLoaderApp:
             "To get started:\n"
             "Navigate to the 'Help' and click 'Tutorial'.\n"
         )
+        self.prediction_frame = tk.Frame(root, bg="white")
+        self.input_fields_frame = tk.Frame(self.prediction_frame, bg="white")
+        self.input_fields_frame.pack(pady=10)
+
+        self.prediction_result_label = tk.Label(
+            self.prediction_frame,
+            text="",
+            bg="white",
+            font=("Helvetica", 10)
+        )
+        self.prediction_result_label.pack(pady=5)
+
+        # Configura el botón de predicción
+        self.setup_prediction_button()
+
+        # Inicialmente, el marco de predicción está oculto
+        self.prediction_frame.pack_forget()
 
     def load_file(self):
         """Loads a data file and processes it."""
@@ -331,6 +348,11 @@ class DataLoaderApp:
                 )
                 if not retry:
                     break
+            
+            self.toggle_prediction(True)
+            self.generate_input_fields()
+            self.predict_button.config(state=tk.NORMAL)
+
 
     def display_tutorial(self):
         """Displays frequently asked questions."""
@@ -421,6 +443,10 @@ class DataLoaderApp:
 
         # Start a new thread for model creation
         threading.Thread(target=self._create_model_thread).start()
+
+        self.toggle_prediction(True)
+        self.generate_input_fields()
+        self.predict_button.config(state=tk.NORMAL)
 
     def _create_model_thread(self):
         """
@@ -563,3 +589,74 @@ class DataLoaderApp:
             bg="white"
         )
         model_info_label.pack(pady=10, expand=True)
+
+    def toggle_prediction(self, enable=True):
+        """
+        Habilita o deshabilita la funcionalidad de predicción.
+        """
+        if enable:
+            self.prediction_frame.pack(fill=tk.BOTH, expand=True)
+        else:
+            self.prediction_frame.pack_forget()
+
+    def generate_input_fields(self):
+        """
+        Genera dinámicamente los campos de entrada basados en las variables de entrada del modelo.
+        """
+        # Limpia cualquier campo existente
+        for widget in self.input_fields_frame.winfo_children():
+            widget.destroy()
+
+        # Crea campos de entrada para cada variable del modelo
+        self.input_fields = {}
+        for variable in [self.selected_input]:  # Adaptar si hay múltiples variables
+            frame = tk.Frame(self.input_fields_frame, bg="white")
+            frame.pack(pady=5)
+
+            label = tk.Label(frame, text=f"Valor para {variable}:", bg="white")
+            label.pack(side=tk.LEFT, padx=5)
+
+            entry = tk.Entry(frame)
+            entry.pack(side=tk.LEFT, padx=5)
+            self.input_fields[variable] = entry
+
+
+    def setup_prediction_button(self):
+        """
+        Configura el botón para realizar predicciones.
+        """
+        self.predict_button = tk.Button(
+            self.prediction_frame, 
+            text="Realizar Predicción", 
+            command=self.make_prediction, 
+            state=tk.DISABLED
+        )
+        self.predict_button.pack(pady=10)
+
+    def make_prediction(self):
+        """
+        Realiza una predicción utilizando el modelo y los valores ingresados por el usuario.
+        """
+        try:
+            # Verifica que todos los campos tengan valores válidos
+            inputs = []
+            for variable, entry in self.input_fields.items():
+                value = entry.get()
+                if not value:
+                    raise ValueError(f"Por favor, ingrese un valor para {variable}.")
+                inputs.append(float(value))
+
+            # Realiza la predicción
+            prediction = self.model.predict([inputs])[0]
+
+            # Muestra el resultado
+            self.prediction_result_label.config(
+                text=f"Predicción: {prediction:.2f}"
+            )
+        except ValueError as ve:
+            messagebox.showerror("Error de Entrada", str(ve))
+        except Exception as e:
+            messagebox.showerror(
+                "Error de Predicción", 
+                f"Se produjo un error al realizar la predicción: {e}"
+            )
