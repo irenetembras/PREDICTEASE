@@ -1,8 +1,11 @@
 import threading
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
-from modules.model_operations import load_model
-import modules.main_window
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+import joblib
 
 
 class DataLoaderApp:
@@ -11,21 +14,19 @@ class DataLoaderApp:
     linear regression model with error metrics.
     """
     # Import necessary functions for operations.
-    from modules.model_operations import create_regression_model, save_model
+
     from modules.data_operations import (
         process_import,
         display_data,
-        handle_nan
+        handle_nan,
+        populate_selectors
     )
 
     from modules.main_window import (
-        reset_controls, 
-        clear_graph, 
-        get_decimal_places, 
-        update_interface_for_model, 
-        populate_selectors,
+        reset_controls,
+        clear_graph 
     )
-    
+
 
     def __init__(self, root):
         root.state('zoomed')
@@ -93,6 +94,25 @@ class DataLoaderApp:
         self.data_menu_button.config(menu=self.data_menu)
         self.data_menu_button.pack(side="left", padx=2)
 
+                # Help menu button setup.
+        self.help_menu_button = tk.Menubutton(
+            self.toolbar,
+            text="Help",  # Texto del botón
+            font=self.font_style,
+            bg="#e0e0e0",
+            fg="black",
+            bd=0,
+            padx=20,
+            pady=5
+        )
+        self.help_menu = tk.Menu(self.help_menu_button, tearoff=0)  
+        self.help_menu.add_command(
+            label="Tutorial",  
+            command=self.display_tutorial 
+        )
+        self.help_menu_button.config(menu=self.help_menu)
+        self.help_menu_button.pack(side="left", padx=2)  
+
         # Label to display the selected file path.
         self.file_path_label = tk.Label(
             root,
@@ -105,14 +125,19 @@ class DataLoaderApp:
 
         # Frame for the data table.
         self.table_frame_border = tk.Frame(self.root, bg="#cccccc")
-        self.table_frame_border.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+        self.table_frame_border.pack(
+            fill=tk.BOTH,
+            expand=True,
+            padx=10,
+            pady=5)
         self.table_frame = tk.Frame(self.table_frame_border, bg="#f9f9f9")
         self.table_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
         # Frame for regression controls on the left side.
         self.controls_frame_border = tk.Frame(self.root, bg="#cccccc")
         self.controls_frame_border.pack(side="left", fill="y", padx=10, pady=5)
-        self.controls_frame = tk.Frame(self.controls_frame_border, bg="#f9f9f9")
+        self.controls_frame = tk.Frame(self.controls_frame_border,
+                                       bg="#f9f9f9")
         self.controls_frame.pack(fill="both", padx=5, pady=5)
 
         # Input column selector.
@@ -178,8 +203,12 @@ class DataLoaderApp:
             text="",
             font=self.font_style,
             fg="blue",
-            justify="left",
-            bg="#f9f9f9"
+            justify="center",
+            bg="#f9f9f9",
+            height=6,
+            width=40,
+            anchor="center",
+            wraplength=380
         )
         self.result_label.pack(pady=10)
 
@@ -202,6 +231,18 @@ class DataLoaderApp:
         self.model_description = ""
         self.model = None
 
+        messagebox.showinfo(
+            "Welcome to Data Loader",
+            "Welcome to the Data Loader application!\n\n"
+            "This tool allows you to:\n"
+            "1. Load and Visualize Data\n"
+            "2. Manage Missing Values\n"
+            "3. Create Linear Regression Models\n"
+            "4. Save and Load Models\n\n"
+            "To get started:\n"
+            "Navigate to the 'Help' and click 'Tutorial'.\n"
+        )
+
     def load_file(self):
         """Loads a data file and processes it."""
         file_types = [
@@ -219,10 +260,20 @@ class DataLoaderApp:
 
             # Make sure data components are visible.
             self.file_path_label.pack(pady=10)
-            self.table_frame_border.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
-            self.controls_frame_border.pack(side="left", fill="y", padx=10, pady=5)
-            self.graph_frame_border.pack(side="right", fill=tk.BOTH, expand=True, padx=10, pady=5)
-            
+            self.table_frame_border.pack(fill=tk.BOTH,
+                                         expand=True,
+                                         padx=10,
+                                         pady=5)
+            self.controls_frame_border.pack(side="left",
+                                            fill="y",
+                                            padx=10,
+                                            pady=5)
+            self.graph_frame_border.pack(side="right",
+                                         fill=tk.BOTH,
+                                         expand=True,
+                                         padx=10,
+                                         pady=5)
+
             # Start processing the file in a separate thread.
             threading.Thread(
                 target=self.process_import,
@@ -236,12 +287,279 @@ class DataLoaderApp:
             self.clear_graph()
 
     def load_model(self):
-        """Method to load a model using the load_model function."""
-        file_path = filedialog.askopenfilename(filetypes=[("Pickle files", "*.pkl"), ("Joblib files", "*.joblib")])
-        if file_path:
-            # Call the load_model function (defined in model_operations).
-            model = load_model(file_path)
-            if model:
-                messagebox.showinfo("Model Loaded", "Model loaded successfully!")
-            else:
-                messagebox.showerror("Error", "Failed to load the model.")
+        """Load a saved model and update the interface accordingly."""
+        while True:
+            file_path = filedialog.askopenfilename(
+                filetypes=[
+                    ("Pickle files", "*.pkl"),
+                    ("Joblib files", "*.joblib")
+                ]
+            )
+            if not file_path:
+                break  # Exit if no file is selected
+
+            try:
+                # Load the model
+                model_data = joblib.load(file_path)
+
+                # Extract model information
+                self.selected_input = model_data['input_column']
+                self.selected_output = model_data['output_column']
+                self.model_description = model_data.get(
+                    'model_description',
+                    'No description provided'
+                )
+                formula = model_data['formula']
+                r2 = model_data['metrics']['R²']
+                mse = model_data['metrics']['MSE']
+
+                # Update the interface to display the model information
+                self.update_interface_for_model(formula, r2, mse)
+
+                # Reset controls
+                self.reset_controls()
+
+                # Confirmation message
+                messagebox.showinfo("Success", "Model loaded successfully.")
+                break  # Exit the loop after successful load
+
+            except Exception as e:
+                error_message = f"Error while loading the model: {str(e)}"
+                retry = messagebox.askretrycancel(
+                    "Error",
+                    f"{error_message}\n\nMaybe try loading another file?"
+                )
+                if not retry:
+                    break
+
+    def display_tutorial(self):
+        """Displays frequently asked questions."""
+        messagebox.showinfo(
+            "Tutorial",
+            "Welcome to the step-by-step tutorial!\n\n"
+            "Step 1: Start by loading a dataset.\n"
+            "   -Use the 'File' button, then click 'Load Dataset' to select a file from your device.\n"
+            "   -Once the dataset is loaded, you'll be able to view the data on screen.\n\n"
+            "Step 2: Fill in any missing (NaN) values.\n"
+            "   -Use the options available in the 'Data' button.\n\n"
+            "Step 3: Create a linear regression model.\n"
+            "   -Select input/output columns and description (optional) and then click 'Create Model'.\n\n"
+            "Step 4: Save your model to your device.\n"
+            "   -Click 'Save Model' to store the model for later use.\n\n"
+            "Step 5: Load a previously saved model.\n"
+            "   -Use the 'File' button, and then click 'Load Model' to load a model from your device.\n\n"
+            "Congratulations, you have completed the tutorial!\n"
+        )
+
+    def show_loading_indicator(self, message):
+        """
+        Displays a larger, centered loading indicator window with a progress bar.
+        
+        Parameters:
+        - message (str): The message to display above the progress bar.
+        """
+        self.loading_window = tk.Toplevel(self.root)
+        self.loading_window.title("Loading")
+        self.loading_window.resizable(False, False)
+        self.loading_window.grab_set()  # Prevent interaction with the main window
+
+        # Define the size of the window
+        width = 500  # Increased width
+        height = 200  # Increased height
+
+        # Calculate x and y coordinates to center the window
+        screen_width = self.loading_window.winfo_screenwidth()
+        screen_height = self.loading_window.winfo_screenheight()
+        x = (screen_width - width) // 2
+        y = (screen_height - height) // 2
+
+        # Set the geometry of the window
+        self.loading_window.geometry(f"{width}x{height}+{x}+{y}")
+
+        # Create and pack the message label
+        label = tk.Label(self.loading_window, text=message, font=("Helvetica", 12))
+        label.pack(pady=30)
+
+        # Create and pack the progress bar
+        progress = ttk.Progressbar(self.loading_window, mode='indeterminate', length=400)
+        progress.pack(pady=20)
+        progress.start(10)  # Adjust the speed as needed
+
+    def hide_loading_indicator(self):
+        """
+        Closes the loading indicator window.
+        """
+        if hasattr(self, 'loading_window') and self.loading_window:
+            self.loading_window.destroy()
+            self.loading_window = None
+
+    def create_regression_model(self):
+        """Creates a linear regression model using the selected columns."""
+        if self.df is None:
+            messagebox.showwarning("Warning", "No dataset loaded.")
+            return
+
+        self.selected_input = self.input_selector.get()
+        self.selected_output = self.output_selector.get()
+
+        if not self.selected_input or not self.selected_output:
+            messagebox.showwarning(
+                "Warning", "No columns selected for regression."
+            )
+            return
+
+        self.model_description = self.dtext.get("1.0", "end-1c").strip()
+        if not self.model_description:
+            proceed = messagebox.askyesno(
+                "Missing Description",
+                "No model description provided. Do you want to continue?"
+            )
+            if not proceed:
+                return
+        
+        self.show_loading_indicator("Creating regression model, please wait...")
+
+        # Start a new thread for model creation
+        threading.Thread(target=self._create_model_thread).start()
+
+    def _create_model_thread(self):
+        """
+        Threaded function to create the regression model.
+        This ensures that the GUI remains responsive during model creation.
+        """
+
+        try:
+            X = self.df[[self.selected_input]].values
+            y = self.df[self.selected_output].values
+
+            self.model = LinearRegression()
+            self.model.fit(X, y)
+            predictions = self.model.predict(X)
+            mse = mean_squared_error(y, predictions)
+            r2 = r2_score(y, predictions)
+
+            intercept = self.model.intercept_
+            coef = self.model.coef_[0]
+            formula = f"{self.selected_output} = {coef:.2f} * {self.selected_input} + {intercept:.2f}"
+            result_text = f"Formula: {formula}\nR²: {r2:.2f}\nMSE: {mse:.2f}"
+
+            # Update the result label in the main thread
+            self.root.after(0, lambda: self.result_label.config(text=result_text))
+
+            # Create and display the regression line plot.
+            self.root.after(0, self.clear_graph)
+            fig, ax = plt.subplots(figsize=(10, 5))
+            ax.scatter(X, y, color="blue", label="Data Points")
+            ax.plot(X, predictions, color="red", label="Regression Line")
+            ax.set_xlabel(self.selected_input)
+            ax.set_ylabel(self.selected_output)
+            ax.legend()
+            ax.set_title("Regression Line")
+
+            # Embed the plot in the Tkinter window.
+            canvas = FigureCanvasTkAgg(fig, master=self.graph_frame)
+            canvas.draw()
+            self.root.after(0, lambda: canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True))
+
+            # Inform the user of successful model creation
+            self.root.after(0, lambda: messagebox.showinfo("Success", "Regression model created successfully."))
+
+        except Exception as e:
+            error_message = f"An error occurred while creating the model: {str(e)}"
+            self.root.after(0, lambda: messagebox.showerror("Error", error_message))
+        finally:
+            # Hide the loading indicator regardless of success or failure
+            self.root.after(0, self.hide_loading_indicator)
+
+    def save_model(self):
+        """Saves the linear regression model data to a file."""
+        if self.model is None:
+            messagebox.showwarning(
+                "Warning",
+                "No model has been created to save."
+            )
+            return
+
+        # Prompt user to select a file path to save the model.
+        file_path = filedialog.asksaveasfilename(
+            defaultextension=".pkl",
+            filetypes=[
+                ("Pickle files", "*.pkl"),
+                ("Joblib files", "*.joblib")
+            ]
+        )
+        if not file_path:
+            return  # Exit if no file is selected.
+
+        try:
+            # Prepare model data for saving.
+            model_data = {
+                'input_column': self.selected_input,
+                'output_column': self.selected_output,
+                'model_description': self.model_description,
+                'formula': (
+                    f"{self.selected_output} = {self.model.coef_[0]:.2f}"
+                    f" * {self.selected_input} + {self.model.intercept_:.2f}"
+                ),
+                'metrics': {
+                    'R²': round(
+                        r2_score(
+                            self.df[self.selected_output],
+                            self.model.predict(self.df[[self.selected_input]])
+                        ),
+                        2
+                    ),
+                    'MSE': round(
+                        mean_squared_error(
+                            self.df[self.selected_output],
+                            self.model.predict(self.df[[self.selected_input]])
+                        ),
+                        2
+                    )
+                }
+            }
+
+            # Save model data to the selected file path.
+            joblib.dump(model_data, file_path)
+            messagebox.showinfo(
+                "Success",
+                f"Model data saved successfully at {file_path}."
+            )
+        except Exception as e:
+            messagebox.showerror(
+                "Error",
+                f"An error occurred while saving the model: {e}"
+            )
+
+    def update_interface_for_model(self, formula, r2, mse):
+        """Update the interface to display the loaded model."""
+        # Destroy existing model details frame if it exists
+        if hasattr(self, 'model_details') and self.model_details:
+            self.model_details.destroy()
+
+        # Hide unnecessary sections
+        self.file_path_label.pack_forget()
+        self.table_frame_border.pack_forget()
+        self.controls_frame_border.pack_forget()
+        self.graph_frame_border.pack_forget()
+
+        # Create a new frame to display the model details
+        self.model_details = tk.Frame(self.root, bg="white")
+        self.model_details.pack(fill=tk.BOTH, expand=True)
+
+        # Display the model details
+        model_info = (
+            f"Formula: {formula}\n"
+            f"R²: {r2}\n"
+            f"MSE: {mse}\n\n"
+            f"Description: {self.model_description}"
+        )
+        model_info_label = tk.Label(
+            self.model_details,
+            text=model_info,
+            font=("Helvetica", 12),
+            fg="black",
+            justify="center",
+            bg="white"
+        )
+        model_info_label.pack(pady=10, expand=True)
