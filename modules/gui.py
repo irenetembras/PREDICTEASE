@@ -1,6 +1,8 @@
 import threading
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
+import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from sklearn.linear_model import LinearRegression
@@ -138,7 +140,7 @@ class DataLoaderApp:
         self.controls_frame_border.pack(side="left", fill="y", padx=10, pady=5)
         self.controls_frame = tk.Frame(self.controls_frame_border,
                                        bg="#f9f9f9")
-        self.controls_frame.pack(fill="both", padx=5, pady=5)
+        self.controls_frame.pack(fill=tk.BOTH, expand=True)
 
         # Input column selector.
         input_label = tk.Label(
@@ -198,18 +200,7 @@ class DataLoaderApp:
         save_button.pack(pady=5)
 
         # Section to display results after model is created.
-        self.result_label = tk.Label(
-            self.controls_frame,
-            text="",
-            font=self.font_style,
-            fg="blue",
-            justify="center",
-            bg="#f9f9f9",
-            height=6,
-            width=40,
-            anchor="center",
-            wraplength=380
-        )
+        self.result_label = tk.Label(self.root, text="Resultado de la predicción", font=('Arial', 12))
         self.result_label.pack(pady=10)
 
         # Frame for the graph visualization on the right side.
@@ -230,6 +221,8 @@ class DataLoaderApp:
         self.selected_output = None
         self.model_description = ""
         self.model = None
+        self.input_fields = []
+        self.dynamic_widgets = []
 
         messagebox.showinfo(
             "Welcome to Data Loader",
@@ -304,54 +297,66 @@ class DataLoaderApp:
             self.clear_graph()
 
     def load_model(self):
-        """Load a saved model and update the interface accordingly."""
+        """Carga un modelo guardado y actualiza la interfaz en consecuencia."""
+        # Limpiar campos de entrada antiguos
+        self.clear_dynamic_widgets()
+
         while True:
             file_path = filedialog.askopenfilename(
-                filetypes=[
-                    ("Pickle files", "*.pkl"),
-                    ("Joblib files", "*.joblib")
-                ]
+                filetypes=[("Archivos Pickle", "*.pkl"), ("Archivos Joblib", "*.joblib")]
             )
             if not file_path:
-                break  # Exit if no file is selected
+                break  # Salir si no se selecciona un archivo
 
             try:
-                # Load the model
+                # Cargar el modelo
                 model_data = joblib.load(file_path)
 
-                # Extract model information
+                # Extraer información del modelo
                 self.selected_input = model_data['input_column']
                 self.selected_output = model_data['output_column']
-                self.model_description = model_data.get(
-                    'model_description',
-                    'No description provided'
-                )
+                self.model_description = model_data.get('model_description', 'No hay descripción')
                 formula = model_data['formula']
                 r2 = model_data['metrics']['R²']
                 mse = model_data['metrics']['MSE']
 
-                # Update the interface to display the model information
+                # Asignar el modelo cargado a self.model
+                self.model = model_data['model_object']  # Aquí es donde se carga el modelo completo
+
+                # Verifica si el modelo se cargó correctamente
+                if self.model is not None:
+                    print(f"Modelo cargado correctamente: {self.model}")
+                else:
+                    print("Error: El modelo no se cargó correctamente.")
+
+                # Actualizar la interfaz para mostrar la información del modelo
                 self.update_interface_for_model(formula, r2, mse)
 
-                # Reset controls
-                self.reset_controls()
-
-                # Confirmation message
-                messagebox.showinfo("Success", "Model loaded successfully.")
-                break  # Exit the loop after successful load
+                # Confirmar que el modelo se cargó correctamente
+                messagebox.showinfo("Éxito", "Modelo cargado correctamente.")
+                break  # Salir del bucle después de cargar el modelo correctamente
 
             except Exception as e:
-                error_message = f"Error while loading the model: {str(e)}"
-                retry = messagebox.askretrycancel(
-                    "Error",
-                    f"{error_message}\n\nMaybe try loading another file?"
-                )
+                error_message = f"Error al cargar el modelo: {str(e)}"
+                retry = messagebox.askretrycancel("Error", f"{error_message}\n\n¿Quieres intentar cargar otro archivo?")
                 if not retry:
                     break
-            
+        if self.selected_input:
             self.toggle_prediction(True)
             self.generate_input_fields()
             self.predict_button.config(state=tk.NORMAL)
+
+    def clear_dynamic_widgets(self):
+        """Destroy all dynamically created widgets."""
+        if hasattr(self, 'dynamic_widgets'):
+            for widget in self.dynamic_widgets:
+                try:
+                    widget.destroy()
+                except Exception as e:
+                    print(f"Error destroying widget: {e}")
+
+            self.dynamic_widgets = []
+
 
 
     def display_tutorial(self):
@@ -416,50 +421,49 @@ class DataLoaderApp:
             self.loading_window = None
 
     def create_regression_model(self):
-        """Creates a linear regression model using the selected columns."""
+        """Crea un modelo de regresión lineal usando las columnas seleccionadas."""
         if self.df is None:
-            messagebox.showwarning("Warning", "No dataset loaded.")
+            messagebox.showwarning("Warning", "No se ha cargado ningún conjunto de datos.")
             return
 
         self.selected_input = self.input_selector.get()
         self.selected_output = self.output_selector.get()
 
         if not self.selected_input or not self.selected_output:
-            messagebox.showwarning(
-                "Warning", "No columns selected for regression."
-            )
+            messagebox.showwarning("Warning", "No se han seleccionado las columnas para la regresión.")
             return
 
         self.model_description = self.dtext.get("1.0", "end-1c").strip()
         if not self.model_description:
-            proceed = messagebox.askyesno(
-                "Missing Description",
-                "No model description provided. Do you want to continue?"
-            )
+            proceed = messagebox.askyesno("Descripción faltante", 
+                                          "No se ha proporcionado una descripción del modelo. ¿Deseas continuar?")
             if not proceed:
                 return
-        
-        self.show_loading_indicator("Creating regression model, please wait...")
 
-        # Start a new thread for model creation
+        self.show_loading_indicator("Creando modelo de regresión, por favor espera...")
+
+        # Crear el modelo en un hilo separado para no bloquear la interfaz de usuario
         threading.Thread(target=self._create_model_thread).start()
 
-        self.toggle_prediction(True)
-        self.generate_input_fields()
-        self.predict_button.config(state=tk.NORMAL)
+        # Verifica que el modelo está disponible
+        if self.selected_input:
+            self.toggle_prediction(True)
+            self.generate_input_fields()
+            self.predict_button.config(state=tk.NORMAL)
 
     def _create_model_thread(self):
         """
-        Threaded function to create the regression model.
-        This ensures that the GUI remains responsive during model creation.
+        Función en hilo separado para crear el modelo de regresión.
+        Esto asegura que la interfaz de usuario siga siendo responsive.
         """
-
         try:
             X = self.df[[self.selected_input]].values
             y = self.df[self.selected_output].values
 
+            # Crear el modelo de regresión
             self.model = LinearRegression()
             self.model.fit(X, y)
+
             predictions = self.model.predict(X)
             mse = mean_squared_error(y, predictions)
             r2 = r2_score(y, predictions)
@@ -467,35 +471,37 @@ class DataLoaderApp:
             intercept = self.model.intercept_
             coef = self.model.coef_[0]
             formula = f"{self.selected_output} = {coef:.2f} * {self.selected_input} + {intercept:.2f}"
-            result_text = f"Formula: {formula}\nR²: {r2:.2f}\nMSE: {mse:.2f}"
+            result_text = f"Fórmula: {formula}\nR²: {r2:.2f}\nMSE: {mse:.2f}"
 
-            # Update the result label in the main thread
+            # Actualiza la interfaz con los resultados
             self.root.after(0, lambda: self.result_label.config(text=result_text))
 
-            # Create and display the regression line plot.
+            # Crea y muestra la línea de regresión
             self.root.after(0, self.clear_graph)
             fig, ax = plt.subplots(figsize=(10, 5))
-            ax.scatter(X, y, color="blue", label="Data Points")
-            ax.plot(X, predictions, color="red", label="Regression Line")
+            ax.scatter(X, y, color="blue", label="Puntos de datos")
+            ax.plot(X, predictions, color="red", label="Línea de regresión")
             ax.set_xlabel(self.selected_input)
             ax.set_ylabel(self.selected_output)
             ax.legend()
-            ax.set_title("Regression Line")
+            ax.set_title("Línea de regresión")
 
-            # Embed the plot in the Tkinter window.
+            # Embebe el gráfico en la interfaz de Tkinter
             canvas = FigureCanvasTkAgg(fig, master=self.graph_frame)
             canvas.draw()
             self.root.after(0, lambda: canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True))
 
-            # Inform the user of successful model creation
-            self.root.after(0, lambda: messagebox.showinfo("Success", "Regression model created successfully."))
+            # Mensaje de éxito
+            self.root.after(0, lambda: messagebox.showinfo("Éxito", "Modelo de regresión creado correctamente."))
 
         except Exception as e:
-            error_message = f"An error occurred while creating the model: {str(e)}"
+            error_message = f"Se produjo un error al crear el modelo: {str(e)}"
             self.root.after(0, lambda: messagebox.showerror("Error", error_message))
+
         finally:
-            # Hide the loading indicator regardless of success or failure
+            # Ocultar el indicador de carga independientemente de si fue exitoso o no
             self.root.after(0, self.hide_loading_indicator)
+
 
     def save_model(self):
         """Saves the linear regression model data to a file."""
@@ -542,7 +548,8 @@ class DataLoaderApp:
                         ),
                         2
                     )
-                }
+                },
+                'model_object': self.model  # Aquí se guarda el modelo completo.
             }
 
             # Save model data to the selected file path.
@@ -600,25 +607,33 @@ class DataLoaderApp:
             self.prediction_frame.pack_forget()
 
     def generate_input_fields(self):
-        """
-        Genera dinámicamente los campos de entrada basados en las variables de entrada del modelo.
-        """
-        # Limpia cualquier campo existente
-        for widget in self.input_fields_frame.winfo_children():
-            widget.destroy()
+        """Genera los campos de entrada para cada variable seleccionada."""
+        # Limpiar widgets anteriores si existen.
+        self.clear_dynamic_widgets()  # Limpia cualquier widget previo (campos de entrada, etc.)
+    
+        # Verifica si ya existen campos de entrada
+        if hasattr(self, 'input_fields') and self.input_fields:
+            self.input_fields.clear()  # Borra los campos previos
 
-        # Crea campos de entrada para cada variable del modelo
-        self.input_fields = {}
-        for variable in [self.selected_input]:  # Adaptar si hay múltiples variables
-            frame = tk.Frame(self.input_fields_frame, bg="white")
-            frame.pack(pady=5)
+        # Aquí añadimos un campo de entrada para la columna seleccionada.
+        input_label = tk.Label(
+            self.prediction_frame,
+            text=f"Ingrese valor para '{self.selected_input}':",
+            font=self.font_style
+        )
+        input_label.pack(pady=5)
 
-            label = tk.Label(frame, text=f"Valor para {variable}:", bg="white")
-            label.pack(side=tk.LEFT, padx=5)
+        input_entry = tk.Entry(self.prediction_frame, font=self.font_style)
+        input_entry.pack(pady=5, fill=tk.X, padx=10)
 
-            entry = tk.Entry(frame)
-            entry.pack(side=tk.LEFT, padx=5)
-            self.input_fields[variable] = entry
+        # Guarda la entrada dinámica para usarla más tarde
+        self.input_fields.append(input_entry)  # Añadimos el campo de entrada a la lista.
+
+        # Habilita el botón de predicción
+        self.predict_button.config(state=tk.NORMAL)
+
+        # Imprimir para depuración
+        print(f"Campos de entrada generados: {len(self.input_fields)}")
 
 
     def setup_prediction_button(self):
@@ -632,31 +647,35 @@ class DataLoaderApp:
             state=tk.DISABLED
         )
         self.predict_button.pack(pady=10)
+        
 
     def make_prediction(self):
-        """
-        Realiza una predicción utilizando el modelo y los valores ingresados por el usuario.
-        """
+        """Realiza la predicción utilizando los valores de entrada proporcionados."""
         try:
-            # Verifica que todos los campos tengan valores válidos
-            inputs = []
-            for variable, entry in self.input_fields.items():
-                value = entry.get()
-                if not value:
-                    raise ValueError(f"Por favor, ingrese un valor para {variable}.")
-                inputs.append(float(value))
+            # Verificar si el modelo está presente antes de predecir
+            if not self.model:
+                print("ERROR: No se ha configurado un modelo válido para la predicción.")
+                messagebox.showerror("Error", "No se ha configurado un modelo válido para la predicción.")
+                return
+
+            # Recupera los valores de los campos de entrada
+            input_values = []
+            for entry in self.input_fields:  # Se asume que input_fields es una lista de widgets de entrada
+                try:
+                    input_values.append(float(entry.get()))  # Convierte cada valor a float
+                except ValueError:
+                    raise ValueError("Todos los campos de entrada deben ser numéricos.")
+
+            print(f"Valores de entrada: {input_values}")
 
             # Realiza la predicción
-            prediction = self.model.predict([inputs])[0]
+            prediction = self.model.predict([input_values])  # El modelo recibe una lista de entradas
+            print(f"Predicción: {prediction[0]}")
 
-            # Muestra el resultado
-            self.prediction_result_label.config(
-                text=f"Predicción: {prediction:.2f}"
-            )
-        except ValueError as ve:
-            messagebox.showerror("Error de Entrada", str(ve))
+            # Muestra la predicción en la interfaz
+            self.result_label.config(text=f"Predicción: {prediction[0]}")
+
+        except ValueError as e:
+            messagebox.showerror("Error", f"Valor de entrada no válido: {e}")
         except Exception as e:
-            messagebox.showerror(
-                "Error de Predicción", 
-                f"Se produjo un error al realizar la predicción: {e}"
-            )
+            messagebox.showerror("Error", f"Se produjo un error al hacer la predicción: {str(e)}")
