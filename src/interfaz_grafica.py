@@ -6,11 +6,10 @@ from tkinter import filedialog, messagebox, simpledialog, ttk
 import joblib
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import pandas as pd
+import modulo_importacion
+
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
-
-import modulo_importacion
 
 class DataLoaderApp:
     """
@@ -21,25 +20,27 @@ class DataLoaderApp:
         root.state('zoomed')
         self.root = root
         self.root.title("Data Loader")
-        self.root.configure(bg="white")
+        self.root.configure(bg="#f0f0f0")  # Changed background color to a light grey
         self.font_style = ("Helvetica", 10)
 
-        # Créer la barre d'outils
-        self.toolbar = tk.Frame(root, bg="#e0e0e0", height=40)
+        # Create the toolbar
+        self.toolbar = tk.Frame(root, bg="#3e3e3e", height=40)
         self.toolbar.pack(side="top", fill="x")
 
-        # Bouton de menu Fichier
+        # File menu button
         self.file_menu_button = tk.Menubutton(
             self.toolbar,
             text="File",
             font=self.font_style,
-            bg="#e0e0e0",
-            fg="black",
+            bg="#3e3e3e",
+            fg="white",
             bd=0,
             padx=20,
-            pady=5
+            pady=5,
+            activebackground="#5e5e5e",
+            activeforeground="white"
         )
-        self.file_menu = tk.Menu(self.file_menu_button, tearoff=0)
+        self.file_menu = tk.Menu(self.file_menu_button, tearoff=0, bg="#5e5e5e", fg="white")
         self.file_menu.add_command(
             label="Load Dataset", command=self.load_file
         )
@@ -51,18 +52,20 @@ class DataLoaderApp:
         self.file_menu_button.config(menu=self.file_menu)
         self.file_menu_button.pack(side="left", padx=10)
 
-        # Bouton de menu Données
+        # Data menu button
         self.data_menu_button = tk.Menubutton(
             self.toolbar,
             text="Data",
             font=self.font_style,
-            bg="#e0e0e0",
-            fg="black",
+            bg="#3e3e3e",
+            fg="white",
             bd=0,
             padx=20,
-            pady=5
+            pady=5,
+            activebackground="#5e5e5e",
+            activeforeground="white"
         )
-        self.data_menu = tk.Menu(self.data_menu_button, tearoff=0)
+        self.data_menu = tk.Menu(self.data_menu_button, tearoff=0, bg="#5e5e5e", fg="white")
         self.data_menu.add_command(
             label="Remove rows with NaN",  # Option 1
             command=lambda: self.handle_nan(option="1")
@@ -82,41 +85,63 @@ class DataLoaderApp:
         self.data_menu_button.config(menu=self.data_menu)
         self.data_menu_button.pack(side="left", padx=2)
 
-        # Label pour afficher le chemin du fichier sélectionné
+        # Prediction menu button (initially disabled)
+        self.prediction_menu_button = tk.Menubutton(
+            self.toolbar,
+            text="Prediction",
+            font=self.font_style,
+            bg="#3e3e3e",
+            fg="white",
+            bd=0,
+            padx=20,
+            pady=5,
+            state='disabled',  # Initially disabled
+            activebackground="#5e5e5e",
+            activeforeground="white"
+        )
+        self.prediction_menu = tk.Menu(self.prediction_menu_button, tearoff=0, bg="#5e5e5e", fg="white")
+        self.prediction_menu.add_command(
+            label="Make Prediction",
+            command=self.make_prediction_dialog
+        )
+        self.prediction_menu_button.config(menu=self.prediction_menu)
+        self.prediction_menu_button.pack(side="left", padx=2)
+
+        # Label to display the selected file path
         self.file_path_label = tk.Label(
             root,
             text="No file selected",
             font=self.font_style,
-            bg="white",
+            bg="#f0f0f0",
             fg="black"
         )
         self.file_path_label.pack(pady=10)
 
-        # Frame pour le tableau de données
+        # Frame for the data table
         self.table_frame_border = tk.Frame(self.root, bg="#cccccc")
         self.table_frame_border.pack(
             fill=tk.BOTH, expand=True, padx=10, pady=5)
         self.table_frame = tk.Frame(
-            self.table_frame_border, bg="#f9f9f9"
+            self.table_frame_border, bg="white"
         )
         self.table_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
-        # Frame pour les contrôles de régression
+        # Frame for regression controls
         self.controls_frame_border = tk.Frame(self.root, bg="#cccccc")
         self.controls_frame_border.pack(
             side="left", fill="y", padx=10, pady=5
         )
         self.controls_frame = tk.Frame(
-            self.controls_frame_border, bg="#f9f9f9"
+            self.controls_frame_border, bg="white"
         )
         self.controls_frame.pack(fill="both", padx=5, pady=5)
 
-        # Contenu de la section de contrôle de régression
+        # Contents of regression control section
         input_label = tk.Label(
             self.controls_frame,
             text="Select input column:",
             font=self.font_style,
-            bg="#f9f9f9"
+            bg="white"
         )
         input_label.pack(anchor="w", padx=10, pady=5)
         self.input_selector = ttk.Combobox(
@@ -128,7 +153,7 @@ class DataLoaderApp:
             self.controls_frame,
             text="Select output column:",
             font=self.font_style,
-            bg="#f9f9f9"
+            bg="white"
         )
         output_label.pack(anchor="w", padx=10, pady=5)
         self.output_selector = ttk.Combobox(
@@ -140,11 +165,11 @@ class DataLoaderApp:
             self.controls_frame,
             text="Enter model description (optional):",
             font=self.font_style,
-            bg="#f9f9f9"
+            bg="white"
         )
         description_label.pack(anchor="w", padx=10, pady=5)
         self.dtext = tk.Text(
-            self.controls_frame, height=4, width=30
+            self.controls_frame, height=2, width=30
         )
         self.dtext.pack(padx=10, pady=5)
 
@@ -152,34 +177,45 @@ class DataLoaderApp:
             self.controls_frame,
             text="Create Model",
             command=self.create_regression_model,
-            font=self.font_style
+            font=self.font_style,
+            bg="#4CAF50",
+            fg="white",
+            activebackground="#45a049"
         )
-        create_button.pack(pady=10)
+        create_button.pack(pady=10, padx=10, fill=tk.X)
 
         save_button = tk.Button(
             self.controls_frame,
             text="Save Model",
             command=self.save_model,
-            font=self.font_style
-        )
-        save_button.pack(pady=5)
-
-        # Section pour afficher les résultats
-        self.result_label = tk.Label(
-            self.controls_frame,
-            text="",
             font=self.font_style,
-            fg="blue",
-            justify="center",
-            bg="#f9f9f9",
-            height=6,
-            width=40,
-            anchor="center",
-            wraplength=380
+            bg="#2196F3",
+            fg="white",
+            activebackground="#0b7dda"
         )
-        self.result_label.pack(pady=10)
+        save_button.pack(pady=5, padx=10, fill=tk.X)
 
-        # Frame pour le graphique
+        # Create a results table
+        self.results_table = ttk.Treeview(
+            self.controls_frame,
+            columns=("Name", "Value"),
+            show='headings',
+            height=5
+        )
+        self.results_table.heading("Name", text="Name")
+        self.results_table.heading("Value", text="Value")
+        self.results_table.column("Name", anchor="center", width=150)
+        self.results_table.column("Value", anchor="center", width=200)
+        self.results_table.pack(pady=10, padx=10, fill=tk.BOTH)
+
+        # Initialize the table with placeholders
+        self.results_names = ["Formula", "R²", "MSE", "Description", "Prediction Result"]
+        self.results_items = []
+        for name in self.results_names:
+            item_id = self.results_table.insert("", "end", values=(name, "-"))
+            self.results_items.append(item_id)
+
+        # Frame for the graph
         self.graph_frame_border = tk.Frame(self.root, bg="#cccccc")
         self.graph_frame_border.pack(
             side="right",
@@ -188,37 +224,36 @@ class DataLoaderApp:
             padx=10,
             pady=5
         )
-        self.graph_frame = tk.Frame(self.graph_frame_border, bg="#f9f9f9")
+        self.graph_frame = tk.Frame(self.graph_frame_border, bg="white")
         self.graph_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
-        # Initialisation des variables
+        # Initialization of variables
         self.df = None
         self.selected_input = None
         self.selected_output = None
         self.model_description = ""
         self.model = None
 
-        # Message de bienvenue détaillé en anglais
+        # Welcome message
         messagebox.showinfo(
             "Welcome to Data Loader",
             "Welcome to the Data Loader application!\n\n"
             "This tool allows you to:\n"
-            "1. **Load and Visualize Data**: Import datasets in CSV, Excel, or SQLite formats and view them in a structured table.\n"
-            "2. **Manage Missing Values**: Handle missing data by removing rows with NaN values or filling them using mean, median, or a constant value.\n"
-            "3. **Create Linear Regression Models**: Select input and output columns to build regression models, view model metrics, and visualize regression lines.\n"
-            "4. **Save and Load Models**: Save your created models for future use or load existing models to review their metrics and details.\n\n"
+            "1. Load and Visualize Data\n"
+            "2. Manage Missing Values\n"
+            "3. Create Linear Regression Models\n"
+            "4. Save and Load Models\n\n"
             "To get started:\n"
             "- Navigate to the 'File' menu to load a dataset or an existing model.\n"
             "- Use the 'Data' menu to preprocess your data.\n"
             "- In the 'Regression Controls' section, select your desired columns and create a regression model.\n"
-            "- Save your model using the 'Save Model' button for future reference.\n\n"
-            "If you need assistance, please refer to the documentation or contact support."
+            "- Save your model using the 'Save Model' button for future reference."
         )
 
     def show_loading_indicator(self, message):
         """
-        Displays a larger, centered loading indicator window with a progress bar.
-        
+        Displays a loading indicator window with a progress bar.
+
         Parameters:
         - message (str): The message to display above the progress bar.
         """
@@ -269,8 +304,10 @@ class DataLoaderApp:
             self.file_path_label.config(text=file_path)
 
             # If model details frame exists, destroy it
-            if hasattr(self, 'model_details') and self.model_details:
-                self.model_details.destroy()
+            if hasattr(self, 'model_details_frame') and self.model_details_frame:
+                self.model_details_frame.destroy()
+            if hasattr(self, 'prediction_frame') and self.prediction_frame:
+                self.prediction_frame.destroy()
 
             # Ensure data components are visible
             self.file_path_label.pack(pady=10)
@@ -407,7 +444,7 @@ class DataLoaderApp:
             messagebox.showwarning("Warning", "No dataset loaded.")
             return
 
-        # Définir les messages en fonction de l'option
+        # Define messages based on the option
         loading_messages = {
             "1": "Removing rows with NaN values, please wait...",
             "2": "Filling NaN values with column mean, please wait...",
@@ -415,72 +452,74 @@ class DataLoaderApp:
             "4": "Filling NaN values with a constant value, please wait..."
         }
 
-        # Afficher l'indicateur de chargement avec le message approprié
+        # Show the loading indicator with the appropriate message
         self.show_loading_indicator(loading_messages.get(option, "Processing, please wait..."))
 
-        # Démarrer un thread pour gérer les NaN
+        # Start a thread to handle NaNs
         threading.Thread(target=self._handle_nan_thread, args=(option,)).start()
 
     def _handle_nan_thread(self, option):
         """
         Threaded function to handle NaN values based on the selected option.
         This ensures the GUI remains responsive during the operation.
-        
+
         Parameters:
-        - option (str): The option selected for handling NaN values ("1" à "4").
+        - option (str): The option selected for handling NaN values ("1" to "4").
         """
         try:
             if option == "1":
-                # Supprimer les lignes avec des valeurs NaN
+                # Remove rows with NaN values
                 self.df = self.df.dropna()
                 success_message = "Rows with NaN values have been removed."
             else:
-                if option == "4":  # Remplir avec une constante
+                if option == "4":  # Fill with a constant
                     constant_value_input = simpledialog.askstring(
                         "Input",
                         "Enter a constant value:"
                     )
                     if constant_value_input is None:
                         self.root.after(0, lambda: messagebox.showinfo("Cancelled", "Operation cancelled by user."))
-                        return  # Sortir de la méthode si l'utilisateur annule
+                        self.root.after(0, self.hide_loading_indicator)
+                        return  # Exit the method if the user cancels
                     try:
                         constant_value = float(constant_value_input)
                     except ValueError:
                         self.root.after(0, lambda: messagebox.showerror("Error", "Invalid constant value entered."))
-                        return  # Sortir de la méthode si la saisie est invalide
+                        self.root.after(0, self.hide_loading_indicator)
+                        return  # Exit the method if the input is invalid
 
-                # Sélectionner les colonnes numériques
+                # Select numeric columns
                 numeric_columns = self.df.select_dtypes(include=['float64', 'int64']).columns
                 for col in numeric_columns:
-                    if option == "2":  # Remplir avec la moyenne
+                    if option == "2":  # Fill with mean
                         mean_value = self.df[col].mean()
                         rounded_mean_value = round(mean_value, 3)
                         self.df[col] = self.df[col].fillna(rounded_mean_value)
-                    elif option == "3":  # Remplir avec la médiane
+                    elif option == "3":  # Fill with median
                         median_value = self.df[col].median()
                         rounded_median_value = round(median_value, 3)
                         self.df[col] = self.df[col].fillna(rounded_median_value)
-                    elif option == "4":  # Remplir avec une constante
+                    elif option == "4":  # Fill with a constant
                         self.df[col] = self.df[col].fillna(constant_value)
-                
-                # Définir le message de succès
+
+                # Define success message
                 if option == "2":
                     success_message = "NaN values have been filled with the column mean."
                 elif option == "3":
                     success_message = "NaN values have been filled with the column median."
                 elif option == "4":
                     success_message = f"NaN values have been filled with the constant value: {constant_value}"
-            
-            # Mettre à jour l'interface utilisateur dans le thread principal
+
+            # Update the UI in the main thread
             self.root.after(0, lambda: messagebox.showinfo("Success", success_message))
             self.root.after(0, self.display_data)
-        
+
         except Exception as e:
             error_message = f"An error occurred while handling NaN values: {str(e)}"
             self.root.after(0, lambda: messagebox.showerror("Error", error_message))
-        
+
         finally:
-            # Cacher l'indicateur de chargement
+            # Hide the loading indicator
             self.root.after(0, self.hide_loading_indicator)
 
     def create_regression_model(self):
@@ -528,25 +567,13 @@ class DataLoaderApp:
             formula = f"{self.selected_output} = {coef:.2f} * {self.selected_input} + {intercept:.2f}"
             result_text = f"Formula: {formula}\nR²: {r2:.2f}\nMSE: {mse:.2f}"
 
-            # Update the result label in the main thread
-            self.root.after(0, lambda: self.result_label.config(text=result_text))
+            # Store data for plotting
+            self.X_plot = X
+            self.y_plot = y
+            self.predictions_plot = predictions
 
-            # Clear previous graph and plot the new one
-            self.root.after(0, self.clear_graph)
-            fig, ax = plt.subplots(figsize=(10, 5))
-            ax.scatter(X, y, color="blue", label="Data Points")
-            ax.plot(X, predictions, color="red", label="Regression Line")
-            ax.set_xlabel(self.selected_input)
-            ax.set_ylabel(self.selected_output)
-            ax.legend()
-            ax.set_title("Regression Line")
-
-            canvas = FigureCanvasTkAgg(fig, master=self.graph_frame)
-            canvas.draw()
-            self.root.after(0, lambda: canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True))
-
-            # Inform the user of successful model creation
-            self.root.after(0, lambda: messagebox.showinfo("Success", "Regression model created successfully."))
+            # Update the GUI in the main thread
+            self.root.after(0, lambda: self.update_after_model_creation(result_text))
 
         except Exception as e:
             # Handle any errors that occur during model creation
@@ -557,6 +584,42 @@ class DataLoaderApp:
             # Hide the loading indicator regardless of success or failure
             self.root.after(0, self.hide_loading_indicator)
 
+    def update_after_model_creation(self, result_text):
+        """Updates the GUI after model creation in the main thread."""
+        # Clear previous graph and plot the new one
+        self.clear_graph()
+        fig, ax = plt.subplots(figsize=(10, 5))
+        ax.scatter(self.X_plot, self.y_plot, color="blue", label="Data Points")
+        ax.plot(self.X_plot, self.predictions_plot, color="red", label="Regression Line")
+        ax.set_xlabel(self.selected_input)
+        ax.set_ylabel(self.selected_output)
+        ax.legend()
+        ax.set_title("Regression Line")
+
+        canvas = FigureCanvasTkAgg(fig, master=self.graph_frame)
+        canvas.draw()
+        canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+
+        # Inform the user of successful model creation
+        messagebox.showinfo("Success", "Regression model created successfully.")
+
+        # Enable the prediction menu item
+        self.prediction_menu_button.config(state='normal')
+
+        # Extract values from result_text
+        formula = result_text.split('\n')[0].replace('Formula: ', '')
+        r2 = result_text.split('\n')[1].replace('R²: ', '')
+        mse = result_text.split('\n')[2].replace('MSE: ', '')
+
+        # Update the results table
+        self.update_results_table({
+            "Formula": formula,
+            "R²": r2,
+            "MSE": mse,
+            "Description": self.model_description or "No description provided",
+            "Prediction Result": "-"
+        })
+
     def save_model(self):
         """Saves the linear regression model data to a file."""
         if self.model is None:
@@ -564,10 +627,10 @@ class DataLoaderApp:
             return
 
         file_path = filedialog.asksaveasfilename(
-            defaultextension=".pkl",
+            defaultextension=".joblib",
             filetypes=[
-                ("Pickle files", "*.pkl"),
-                ("Joblib files", "*.joblib")
+                ("Joblib files", "*.joblib"),
+                ("Pickle files", "*.pkl")
             ]
         )
         if not file_path:
@@ -578,7 +641,7 @@ class DataLoaderApp:
             model_data = {
                 'input_column': self.selected_input,
                 'output_column': self.selected_output,
-                'model_description': self.model_description,
+                'model_description': self.model_description or "No description provided",
                 'formula': (
                     f"{self.selected_output} = {self.model.coef_[0]:.2f}"
                     f"* {self.selected_input} + {self.model.intercept_:.2f}"
@@ -586,19 +649,20 @@ class DataLoaderApp:
                 'metrics': {
                     'R²': round(
                         r2_score(
-                            self.df[self.selected_output],
-                            self.model.predict(self.df[[self.selected_input]])
+                            self.y_plot,
+                            self.model.predict(self.X_plot)
                         ),
                         2
                     ),
                     'MSE': round(
                         mean_squared_error(
-                            self.df[self.selected_output],
-                            self.model.predict(self.df[[self.selected_input]])
+                            self.y_plot,
+                            self.model.predict(self.X_plot)
                         ),
                         2
                     )
-                }
+                },
+                'model': self.model  # Save the actual model
             }
 
             # Save the model data
@@ -618,8 +682,8 @@ class DataLoaderApp:
         while True:
             file_path = filedialog.askopenfilename(
                 filetypes=[
-                    ("Pickle files", "*.pkl"),
-                    ("Joblib files", "*.joblib")
+                    ("Joblib files", "*.joblib"),
+                    ("Pickle files", "*.pkl")
                 ]
             )
             if not file_path:
@@ -639,12 +703,13 @@ class DataLoaderApp:
                 formula = model_data['formula']
                 r2 = model_data['metrics']['R²']
                 mse = model_data['metrics']['MSE']
+                self.model = model_data.get('model', None)  # Load the actual model
+
+                if self.model is None:
+                    raise ValueError("The model object is missing in the loaded file.")
 
                 # Update the interface to display the model information
                 self.update_interface_for_model(formula, r2, mse)
-
-                # Reset controls
-                self.reset_controls()
 
                 # Confirmation message
                 messagebox.showinfo("Success", "Model loaded successfully.")
@@ -661,19 +726,25 @@ class DataLoaderApp:
 
     def update_interface_for_model(self, formula, r2, mse):
         """Update the interface to display the loaded model."""
-        # Destroy existing model details frame if it exists
-        if hasattr(self, 'model_details') and self.model_details:
-            self.model_details.destroy()
-
         # Hide unnecessary sections
         self.file_path_label.pack_forget()
         self.table_frame_border.pack_forget()
         self.controls_frame_border.pack_forget()
         self.graph_frame_border.pack_forget()
 
+        # Destroy existing frames if they exist
+        if hasattr(self, 'model_details_frame') and self.model_details_frame:
+            self.model_details_frame.destroy()
+        if hasattr(self, 'prediction_frame') and self.prediction_frame:
+            self.prediction_frame.destroy()
+
         # Create a new frame to display the model details
-        self.model_details = tk.Frame(self.root, bg="white")
-        self.model_details.pack(fill=tk.BOTH, expand=True)
+        self.model_details_frame = tk.Frame(self.root, bg="white", bd=2, relief="groove")
+        self.model_details_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+
+        # Adjust the description if empty
+        if not self.model_description or self.model_description.strip() == "":
+            self.model_description = "No description provided"
 
         # Display the model details
         model_info = (
@@ -682,27 +753,93 @@ class DataLoaderApp:
             f"MSE: {mse}\n\n"
             f"Description: {self.model_description}"
         )
-        model_info_label = tk.Label(
-            self.model_details,
+        self.model_info_label = tk.Label(
+            self.model_details_frame,
             text=model_info,
             font=("Helvetica", 12),
             fg="black",
             justify="center",
             bg="white"
         )
-        model_info_label.pack(pady=10, expand=True)
+        self.model_info_label.pack(pady=10, padx=10, expand=True)
+
+        # Create a frame for prediction results
+        self.prediction_frame = tk.Frame(self.root, bg="white", bd=2, relief="groove")
+        self.prediction_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+
+        # Label to display prediction result
+        self.prediction_result_label_loaded = tk.Label(
+            self.prediction_frame,
+            text="Prediction Result: (No prediction made yet)",
+            font=("Helvetica", 12),
+            fg="green",
+            justify="center",
+            bg="white"
+        )
+        self.prediction_result_label_loaded.pack(pady=10, padx=10, expand=True)
+
+        # Enable the prediction menu item
+        self.prediction_menu_button.config(state='normal')
 
     def reset_controls(self):
         """Resets the input/output selectors and description field."""
         self.input_selector.set('')
         self.output_selector.set('')
         self.dtext.delete('1.0', tk.END)
-        self.result_label.config(text='')
+        # Reset the results table values to placeholders
+        for idx, name in enumerate(self.results_names):
+            item_id = self.results_items[idx]
+            self.results_table.item(item_id, values=(name, "-"))
 
     def clear_graph(self):
         """Clears the graph frame."""
         for widget in self.graph_frame.winfo_children():
             widget.destroy()
+
+    def make_prediction_dialog(self):
+        """Opens a dialog to input prediction values and displays the result."""
+        if self.model is None:
+            messagebox.showwarning("Warning", "No model is available for prediction.")
+            return
+
+        # Prompt the user to enter the input value
+        input_prompt = f"Enter a value for {self.selected_input}:"
+        input_value = simpledialog.askstring("Prediction Input", input_prompt)
+
+        if input_value is None:
+            # User cancelled the dialog
+            return
+
+        try:
+            input_value = float(input_value)
+        except ValueError:
+            messagebox.showerror("Input Error", "Invalid input value. Please enter a numeric value.")
+            return
+
+        # Perform the prediction
+        try:
+            X_new = [[input_value]]
+            y_pred = self.model.predict(X_new)
+            prediction_text = f"Predicted {self.selected_output}: {y_pred[0]:.2f}"
+
+            # Update the results table with prediction result
+            if hasattr(self, 'prediction_result_label_loaded'):
+                self.prediction_result_label_loaded.config(text=prediction_text)
+            else:
+                self.update_results_table({
+                    "Prediction Result": f"{y_pred[0]:.2f}"
+                })
+
+        except Exception as e:
+            messagebox.showerror("Prediction Error", f"An error occurred during prediction: {e}")
+
+    def update_results_table(self, updates):
+        # Update the results table with new values
+        for idx, name in enumerate(self.results_names):
+            if name in updates:
+                value = updates[name]
+                item_id = self.results_items[idx]
+                self.results_table.item(item_id, values=(name, value))
 
 if __name__ == "__main__":
     root = tk.Tk()
