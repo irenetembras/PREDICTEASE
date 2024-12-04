@@ -4,7 +4,7 @@
 
 ## Readme File
 
-Sandra Fernandes Fernandes
+Sandra Fernandes
 
 Abstract
 Welcome to PredictEase, a user-friendly application designed to make data analysis and regression modeling
