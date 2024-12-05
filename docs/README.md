@@ -1,10 +1,8 @@
-[Read me File.docx](https://github.com/user-attachments/files/17981429/Read.me.File.docx)
-
 # PREDICTEASE
 
 ## Readme File
 
-Sandra Fernandes
+Sandra Fernandes Fernandes
 
 Abstract
 Welcome to PredictEase, a user-friendly application designed to make data analysis and regression modeling
@@ -13,456 +11,602 @@ Polytechnic in Toronto, Canada, and Universidade da Coruña in Spain, this tool 
 (Collaborative Online International Learning) Project.
 
 
-
-- INTRODUCTION
-- ABOUT THIS USER GUIDE
-- GETTING STARTED
-- PROJECT FEATURES
-- HARDWARE/SYSTEM REQUIREMENTS
-- MINIMUM SYSTEM REQUIREMENTS
-- RECOMMENDED SYSTEM REQUIREMENTS
-- INSTALLING PYTHON
-- INTEGRATED DEVELOPMENT ENVIRONMENT (IDE)
-- INSTALLING PYTHON LIBRARIES
-- USER INTERFACE
-- UI ELEMENTS IN PREDICTEASE
+## Readme File
 
 
-## INTRODUCTION
+- About this User Guide ____________________________________________________________ Table of Contents
+- Overview _______________________________________________________________________
+      - Project Features ______________________________________________________________________
+- Getting Started __________________________________________________________________
+      - Hardware/System Requirements ________________________________________________________
+         - Operating System-Specific Requirements ________________________________________________________
+         - General Hardware Requirements _______________________________________________________________
+- Navigating the PredictEase Interface _______________________________________________
+      - Overview of User Interface Components _____________________________________________
+         - Loading a Model Interface ____________________________________________________________________
+         - Model Generating Interface __________________________________________________________________
+         - Graph Interface _____________________________________________________________________________
+- Functions and Usage of PredictEase ________________________________________________
+      - Using PredictEase _____________________________________________________________________
+      - Opening Data Files ____________________________________________________________________
+      - Entering a Model Description ___________________________________________________________
+      - Building the Model ____________________________________________________________________
+      - Processing and Saving Model ___________________________________________________________
+      - Predicting Values from Data Files ______________________________________________________
+      - Loading Previous Models _____________________________________________________________
+- Additional Information __________________________________________________________
+      - Contributing to PredictEase Guidelines _________________________________________________
+      - Contribution Process _________________________________________________________________
+      - Reporting Issues _____________________________________________________________________
+      - Acknowledgements __________________________________________________________________
+- Glossary Terms _________________________________________________________________
 
-Welcome to “ **PredictEase”** , a user-friendly application designed to make data analysis and
-regression modelling simple and accessible. Created through an international collaboration
-between teams from Seneca Polytechnic in Toronto, Canada, and Universidade da Coruña in
-Spain, this tool is part of the COIL (Collaborative Online International Learning) Project.
 
-PredictEase lets you import data, analyze it, visualize results, and manage regression models—
-all on an intuitive, **Python-powered** platform. Whether you're a beginner or an experienced
-analyst, PredictEase bridges the gap between complex technical processes and straightforward
-predictive modelling, making data-driven decisions easier than ever
-
-## ABOUT THIS USER GUIDE
-
-This user guide helps you understand and use the Linear Progression Software, designed for
-creating and analyzing predictive models easily. Whether you’re a business manager, data
-analyst, or general user, this guide will walk you through setting up, using, and maximising the
-software’s features.
-
-```
-o
-```
-## GETTING STARTED
+### Readme File
 
 
-## PROJECT FEATURES
+**About this User Guide**
+
+This guide helps you set up and use the Linear Progression Software for creating and analyzing
+predictive models. Whether you are a business manager, data analyst, or general user, you'll find
+clear steps to get the most out of the software's features.
+
+**Overview**
+
+The Dataloader App simplifies the process, of uploading and managing data for various purposes. It
+helps you work efficiently with spreadsheets, databases, or files, making the process easy and hassle-
+free—even if you’re new to data management!
+
+Project Features
+
+In this section, you will discover the key features of PredictEase (as shown in Table 1.1), a user-
+friendly software designed to simplify regression modelling and predictive analysis.
 
 ```
 Features Description
-Data Import and Management • Import data from multiple formats,
-including CSV, Excel, and SQLite.
+Data Import and Management • Import data from multiple formats, including
+CSV, Excel, and SQLite.
 ```
-- Select and manage variables to tailor
-    your model to specific needs.
-**Model Creation and Customization** • Create simple linear regression
-models to identify relationships in
-data.
-- Adjust model parameters as needed
-    for tailored results.
-**AI-Enhanced Predictions** • Use AI to refine model accuracy and
-make predictions that adapt to new
-data inputs.
+- Select and manage variables to tailor your
+    model to specific needs.
+**Model Generating Interface and Customization** • Create simple linear regression models to
+identify relationships in data.
+- Adjust model parameters as needed for
+    tailored results.
+**AI-Enhanced Predictions** • Use AI to refine model accuracy and make
+predictions that adapt to new data inputs.
 - Enable automatic updates to model
-    predictions with AI-driven
-    improvements.
-**Interactive Data Visualization** • View data trends and model results
-through easy-to-interpret charts and
-graphs.
+    predictions with AI-driven improvements.
+**Interactive Data Visualization** • View data trends and model results through
+easy-to-interpret charts and graphs.
 - Explore visualizations with interactive
     features for better insights and data
     storytelling.
-**Model Management** • Save and load models for ongoing
-analysis or future reference.
-- Export model reports in PDF or Excel
-    formats for easy sharing and
-    presentation.
-**User-Friendly Interface** • Simple, intuitive design for easy
-navigation.
-- Step-by-step guidance through model
-    creation and analysis.
-**In-App Support and Resources** •
--
-
-## HARDWARE/SYSTEM REQUIREMENTS
-
-To use PredictEase effectively, ensure your system meets the following hardware and software
-requirements:
-
-## MINIMUM SYSTEM REQUIREMENTS
-
-- **Operating System** : Windows 10 (64-bit), macOS 11.0 or later, or Linux (Ubuntu 20.04 or
-    equivalent)
-- **Processor** : Dual-Core CPU (2.0 GHz or higher)
-- **RAM** : 4 GB
-- **Storage** : 500 MB of free disk space
-- **Graphics** : Integrated graphics capable of displaying 1280 x 720 resolution
+**Model Management** • Save and load models for ongoing analysis or
+future reference.
+- Export model reports in PDF or Excel formats
+    for easy sharing and presentation.
+**User-Friendly Interface** • Simple, intuitive design for easy navigation.
+- Step-by-step guidance through Model
+Generating Interface and analysis.
+**_Table 1.1: Project Features_**
 
 
-**Software** :
+### Readme File
 
-- Python 3.9 or higher
-- Required Python libraries (install via requirements.txt)
 
-## RECOMMENDED SYSTEM REQUIREMENTS
+**Getting Started**
 
-- **Operating System** : Windows 11, macOS 12.0 (Monterey) or later, or Linux (Ubuntu
-    22.04 or equivalent)
-- **Processor** : Quad-Core CPU (2.5 GHz or higher)
-- **RAM** : 8 GB or more
-- **Storage** : 1 GB of free disk space
-- **Graphics** : Dedicated GPU with OpenGL 3.3 support or higher
+Welcome to PredictEase – an easy-to-use tool for data analysis and regression modelling,
+created through a collaboration between Seneca Polytechnic (Canada) and Universidade da
+Coruña (Spain) as part of the COIL Project.
+With PredictEase, you can upload data, analyze it, visualize results, and manage regression
+models on a user-friendly Python-powered platform, making data-driven decisions simple
+for everyone, from beginners to experts.
 
-**Software** :
+Hardware/System Requirements
 
-- Python 3.10 or higher
-- Required Python libraries with the latest updates
+To use PredictEase effectively, (see. Table 2.1 and Table 2.2) ensure your system meets the
+following hardware and software requirements:
 
-Additional Notes
+Operating System-Specific Requirements
+
+**Operating System Version**
+Windows Windows 10 (64-bit) or later
+macOS macOS 11.0 or later
+Linux Ubuntu 20.04 or equivalent
+**_Table 2 .1: System requirements for Mac and Windows devices._**
+
+General Hardware Requirements
+
+```
+Component Requirement
+```
+```
+Processor
+```
+```
+Dual-Core CPU (2.0 GHz or higher) / Intel
+Core i5 or equivalent
+Memory (RAM) 6 GB minimum
+Storage 500 MB of free disk space
+```
+```
+Graphics
+```
+Integrated graphics capable of displaying
+1280 x 720 resolution
+**_Table 2. 2. Minimum Hardware Specifications for Optimal Performance._**
+
+**Additional Notes**
 
 - **Internet Connection** : Required for downloading dependencies, updates, and certain
     online data integrations.
 - **Supported File Formats** : CSV, Excel (.xlsx), SQLite databases.
 - **Environment** : A stable and secure computing environment is recommended to avoid
     data loss or application interruptions.
-
-```
-For installation guidance and troubleshooting, refer to the Installation Guide section of
-the user documentation.
-```
-## INSTALLING PYTHON
-
-```
-To run the Linear Regression model, you need Python since the software is developed in
-this language. Follow these steps to install Python:
-```
-1. Download Python from the official Python website.
-2. Open the Python installer.
-3. Select **"Custom installation"** during the setup.
-4. Ensure the following options are checked:
-
-```
-o Add Python to environment variables
-```
-```
-o Install pip
-```
-5. Complete the installation by clicking **"Install"**.
-
-```
-After installation, you’ll be ready to run the Linear Regression model.
-```
-
-**Downloading and Installing the Model**
-
-## INTEGRATED DEVELOPMENT ENVIRONMENT (IDE)
-
-You don’t need an Integrated Development Environment (IDE) to run the Linear Regression
-model but, using one can make development easier. IDEs like Visual Studio Code (VS Code)
-offer useful features such as:
-
-- **Code highlighting and suggestions** : IDEs help you write clean and error-free
-    code by offering syntax highlighting and autocomplete suggestions.
-- **Debugging tools** : You can easily find and fix errors with integrated debugging
-    features.
-- **Project organization** : IDEs help manage and organize files in complex projects.
-
-If you decide to use VS Code, here are some tips for running Python programs:
-
-1. After installing Python, restart VS Code to ensure it recognizes the Python
-    installation.
-2. Install the Python Extension in VS Code:
-
-```
-o Select Extensions on the left navigation bar.
-```
-```
-o In the search bar, type ms-python.python and press Enter to locate and
-install the extension.
-```
-```
-This setup will make it easier to work with Python in VS Code.
-```
-## INSTALLING PYTHON LIBRARIES
-
-```
-To complete this section, you’ll need to use a terminal. Some options include:
-```
-- **Command Prompt** (Windows)
-- **PowerShell** (Windows)
-- **Terminal** (MacOS)
-- **Visual Studio Code Terminal**
-
-```
-Follow these steps to install the required libraries:
-```
-1. Open your terminal and navigate to the Linear Regression project folder.
-2. Type each command line below, pressing **Enter** after each one to install the library.
-3. Repeat step 2 until all libraries are installed.
+    For installation guidance and troubleshooting, refer to the **docs** section of the user
+    documentation.
 
 
-## USER INTERFACE
+### Readme File
 
-## UI ELEMENTS IN PREDICTEASE
 
-Main Window (root):
+**PredictEase Interface Navigation**
 
-```
-o Name: root (The main window of the app)
-```
-Input Selector (self.input_selector):
+PredictEase has a simple, intuitive interface designed to help you create, manage, and
+visualize regression models.
 
-```
-o Name: input_selector
-```
-```
-o Function: Allows users to select the input data.
-```
-Output Selector (self.output_selector):
-
-```
-o Name: output_selector
-```
-```
-o Function: Allows users to select the output data.
-```
-Text Area (self.dtext):
-
-```
-o Name: dtext
-```
-```
-o Function: A text area where results or logs are displayed.
-```
-Results Table (self.results_table):
-
-```
-o Name: results_table
-```
-```
-o Function: Displays results in a table format.
-```
-Prediction Button (self.make_prediction_button):
-
-```
-o Name: make_prediction_button
-```
-```
-o Function: Button to trigger prediction functionality.
-```
-Clear Results Button (self.clear_button):
-
-```
-o Name: clear_button
-```
-```
-o Function: Button to clear the results or reset the data.
-```
-Clear Graph Button (self.clear_graph_button):
-
-```
-o Name: clear_graph_button
-```
-```
-o Function: Button to clear the graph display.
-```
-File Selection Button (self.file_button):
-
-```
-o Name: file_button
-```
-```
-o Function: Opens the file dialog to load data.
-```
-Graph Frame (self.graph_frame):
-
-```
-o Name: graph_frame
-```
-
-```
-o Function: A frame used to hold the graphical elements (e.g., charts, plots).
-```
-Prediction Result Label (self.prediction_result_label_loaded):
-
-```
-o Name: prediction_result_label_loaded
-```
-```
-o Function: Displays the result of the prediction.
-```
-File Dialog (file_dialog):
-
-```
-o Name: file_dialog
-```
-```
-o Function: Opens a file dialog for selecting input data files.
-```
-Messagebox (self.show_error, self.show_warning, etc.):
-
-```
-o Name: show_error, show_warning
-```
-```
-o Function: Display error or warning messages.
-```
-Input Value Dialog (self.input_value):
-
-```
-o Name: input_value
-```
-```
-o Function: Prompts the user to enter a numeric value for prediction.
-```
-Input Validation Message (messagebox.showerror, etc.):
-
-```
-o Name: messagebox.showerror
-```
-```
-Function: Show error messages when input values are invalid.
-```
-```
 Overview of User Interface Components
-```
-**Beginning Interface**
 
-The user Interface contains three parts:
+The user interface is designed to provide a seamless experience for building, managing, and
+visualizing models. It is organized into three key components:
+The user interface contains three parts:
 
-- The beginning interface (welcome screen): Showing the information about the
-    requirements of our software’s file formats and importing files.
-- Importing a file main interface (preprocessing data screen): A spreadsheet screen with
-    buttons and functionalities to adjust and collect data before predicting.
-- Result Interface
+- Loading a model interface
+- Model generating interface
+- Graph interface
 
-**Importing File Main Interface** : Spreadsheet and data adjustment functionalities
+Loading a Model Interface
 
-**Results Interface**
+The "Loading a Model" interface (see Figure 1.1 for more details) lets you upload and
+manage pre-saved models. The key features and button positions are as follows:
 
-**4. Functions and Usage**
-    - **Overview**
+**File Dropdown**
 
-```
-o Key functionalities and execution process
-```
+- Load Dataset
+- Load Model
+- Exit
 
-- **Main Stages**
-
-**Importing Files**
-
-In this section, you upload the database file necessary to work on the following stages. You can
-import a file from these two interfaces:
-
-**Interface options for file imports**
-
-An initial interface opens when you first run the software. (Figure)
-
-A second interface with a built-in section in the main interface for importing a file with the same
-functionality. (Figure)
-
-**Steps for importing a file and selecting an output column**
-
-To add your file, create a linear regression output
-
-1. Click **Open File Explorer** in the initial interface(figure).
-    The select File dialog window opens.
-2. Navigate to the folder you need to import the file button.
-3. Click **Open** to import the file.
-    The spreadsheet appears in the input variable interface(figure)
-4. Select the output column.
-    Note: you can only select one output.
-5. Select one of the options: “Replace with a number”, “Replace with mean”, replace with
-    median”, or “Remove row”.
-6. Click Generate model.
-    A pop-up with the message “Linear regression model has been generated and plotted”
-    appears.
-7. Click OK.
-    Figure 2 shows that the linear regression, along with the selected data option, appears.
-
-**File formats supported**
-
-The software can import from local storage various database file formats:
-
-- CSV
-- Microsoft Excel
-- SQLite
-- .db
-- .xls
-
-**Preprocessing Data**
-
-**Spreadsheet Section**
-
-This section contains all the granular data from the imported file. The interface shows the
-information in cells, columns and rows with specific values within them. Values can be textual
-or numerical. (Figure)
-
-**Variables and Target Selection**
-
-This section comprises of two parts
+**_Figure 1 .1 Loading Model Interface_**
 
 
-Input variable selection
+### Readme File
+
+Model Generating Interface
+
+The **Model Generating Interface** (see Figure 2 .1 for more details) provides tools for creating
+and refining your models. Key features include:
+
+- Input and Output Dropdowns (left-top)
+- Create Model Button (below dropdowns, centre)
+- Metrics Display Area (below the button)
+- Description Field (bottom centre)
 
 ```
-The variables selection section – allows you to select the columns from the imported file
-for the input variable(s) to predict the results.
+Note: The following screenshot and table show the function of each null data
+preprocessing button.
 ```
-Target selection for output values
+**_Figure 2 .1: Model generating Interface_**
 
-```
-Target selection – allows you to choose the columns from the imported file for the output
-value. The software will display the output value in this column after processing the input
-variables(s).
-```
-**Missing Data Handling**
 
-This section is a drop-down list that contains options to handle empty cells with no value, such
-as “n/a”, “na”, “non” and “nan” The software offers different options.
+### Readme File
 
-Options Functions
-Remove rows To delete the entire row that contains the
+**Data Dropdown**
+This section is about the drop-down list (see, Figure 3.2) that contains options to handle
+empty cells with no value, such as “n/a”, “na”, “non” and “nan” The software offers different
+options.
+
+**Options Functions**
+Remove rows with Nan To delete the entire rows that contain the
 empty cell(s).
-Fill with mean To fill all empty cells with the mean of the
-remaining values of the rows.
+Fill with mean Fill empty cells with the mean of remaining
+values.
 Fill with median To fill all empty cells with the median of the
 remaining cells’ value of the row.
-Fill with a constant value To fill all empty cells throughout the row with
-specific values. You must manually enter the
-constant value.
-_Table 1 : Options in the Handle missing Data drop-down list._
+Fill with a constant To fill all empty cells throughout the row
+with specific values. You must manually
+enter the constant value.
+**_Table 3.1: Options in the Handle missing Data drop-down list._**
 
-**Getting Results**
+**_Figure 3. 2 Data Dropdown Menu_**
+
+**Use Case Scenario for Data Dropdown**
+A data analyst prepares a dataset for analysis and notices several empty cells. These missing
+values could affect the accuracy of the results. The analyst uses the Data Dropdown feature
+to handle the empty cells.
+
+**Data Analyst:**
+
+1. Uploads the dataset into the PredictEase App and identifies empty cells (e.g., “n/a”,
+    “na”, “non”, or “nan”).
+2. Opens the Data Dropdown menu and selects one of the following options
+3. Removes rows with critical missing values.
+4. Replaces missing numerical values with the column mean.
+5. Replaces missing values with the column median to avoid the impact of outliers.
+
+
+### Readme File
+
+
+6. Replaces missing values with a specified constant (e.g., “0” or “unknown”).
+
+**Outcome:**
+The dataset is now consistent and ready for analysis. The missing values are handled based
+on the selected strategy, ensuring the integrity of the results.
+The Data Dropdown gives users control over missing data, streamlining data preparation.
+
+Graph Interface
+
+The **Graph Interface** in the Dataloader app enables users to visualize data and model
+predictions clearly and interactively. It supports types of graphical representations, helping
+users analyze the dataset and model outcomes efficiently.
+
+**Graph Area (Center of the Interface) (See. Figure 4.1)**
+
+- The current graph displays based on the selected dataset or model predictions.
+- Graph types may include scatter plots, line graphs, bar charts, etc.
+- Updates dynamically when the user selects different datasets or model predictions.
+
+**Legend and Axis Labels (See, Figure 4.1)**
+
+- Automatically generated when a graph is plotted.
+- Provides information about data series, axis labels, and units, ensuring clear
+    interpretation of the graph.
+
+**_Figure 4 .1 Grap Area Interface_**
+
+
+### Readme File
+
+
+**Prediction Dropdown**
+
+- Use the model to predict outcomes based on the dataset. (see, Figure 4.2)
+
+_Figure 4.2 Prediction dropdown_
+
+Functions and Usage of PredictEase
+
+This section describes how to use PredictEase functions to build a linear regression model.
+
+Using PredictEase
+
+To use PredictEase, make sure your data file is up to date and all data is correctly defined.
+You can use PredictEase to process and save data sets, generate models for data analysis and
+prediction, and reload saved models for continuous analysis and customization.
+
+Opening Data Files
+
+To start using PredictEase open the data file. PredictEase works with CSV, Microsoft Excel,
+SQLite, .db and .xls
+To open the data file:
+
+1. Open Predict Ease
+2. Click **File** dropdown in the menu bar.
+    A file dialog box opens to choose the dataset file.
+3. Select the compatible Data File > **Open**
+    The data chart appears
+    The selected data file opens in PredictEase, and the data chart is displayed, ready
+    for analysis.
+
+
+### Readme File
+
+
+Entering a Model Description
+
+After opening the compatible data file in the software, you will now process the data.
+
+1. Locate the **Input Column** (independent variables) dropdown menu on the left of the
+    home screen.
+2. Click the dropdown menu and select the desired independent variable (e.g., a
+    column representing "Advertising Budget").
+3. Locate the **Output Column** (dependent variables) dropdown menu on the left of the
+    home screen.
+4. Click the **dropdown**.
+5. Select the desired dependent variable (e.g., a column representing "Sales").
+You are now set to proceed with further model settings or data processing.
 
 ```
-▪ Steps to generate and display the linear regression model
+Important: Models cannot be generated if there are null data present. A Warning
+sign shows if you have null data. See Processing and Saving Model for more
+details on editing null data.
 ```
-**5. Additional Information**
-    - **Support and Reporting Issues**
+Building the Model
+
+Generate and visualize the regression model using the selected variables.
+
+1. Confirm the set input and output variable.
+2. Click the **Create Model** button.
+3. Review the results:
+    A graph with the regression line and data points.
+    Metrics including:
+       - R² (Coefficient of determination).
+       - MSE (Mean squared error).
+       - Description
+       - Prediction Result
+The regression model is visualized, and key metrics are displayed.
+
+Processing and Saving Model
+This section explains how to process and save your regression model for future use. After
+defining the input and output variables and generating the model, you can evaluate its
+performance and store it for reuse.
+To process and save a file after creating the model:
+
+1. Click **Data** in the menu bar
+2. Select the processing option from the list.
+3. Select **Save Model.**
+    The Save as dialog will appear.
+4. Enter a file name and click **Save.**
+    A success dialog appears to indicate that the model data has been saved.
+5. Click **Ok.**
+
+
+### Readme File
 
 ```
-o Contact information for the technical writing team
+The model is processed and saved successfully.
 ```
-- **Acknowledgments**
+Predicting Values from Data Files
+
+This section explains how you can predict values using your data files in PredictEase. After
+loading a data file and selecting input variables, you can use the app to generate predictions
+based on your regression model.
+
+To predict a value:
+
+1. Go to **Prediction** in the Menu bar.
+2. Select **Make Prediction**.
+    The app displays a **Prediction Input** dialog box.
+3. Click **OK**
+    Note: If you do not see this test result, you may need to minimize the PredictEase
+    window to full screen.
+4. Select **Save Model** to save the prediction.
+    The app displays the Prediction Input dialog box.
+
+**Use Case: Predicting House Prices Using PredictEase**
+
+**Title:** Predicting House Prices Based on Location and Size
+
+**Actor:** Jane (Person trying to buy a house)
+
+**Goal:** The homebuyer wants to predict the price of a house based on its location and size.
+
+**Preconditions:**
+
+- Jane has access to the PredictEase app.
+- Jane has a data file with information about house prices, locations, and sizes.
 
 ```
-o Developers
+Note: The prediction measure for the use case is 150.
 ```
-```
-o Authors
-```
-- **Contribution Guidelines**
+**Main Flow of the homebuyer:**
+
+1. Opens the PredictEase app.
+2. Uploads a data file that includes house prices, locations, and sizes.
+3. Selects " **Median income** " and " **Median house value"** as the input and output
+    variables.
+4. The app processes the data and generates a predicted house price (see Figure 5.1 for
+    the result).
 
 ```
-o Instructions for contributions through GitHub
+Jane reviews the predicted price for a house based on their desired location and size.
 ```
-- **Licenses**
+
+### Readme File
+
+**Postconditions:**
+
+- The homebuyer receives an estimated house price based on the selected location
+    and size.
+
+**Alternative Flow:**
+
+- If the data file is not in the correct format, the app prompts the homebuyer to
+    upload a valid file.
+
+**Location and Size:** The homebuyer can choose any location and enter the desired size of the
+house (e.g., square footage) to predict the house price.
+
+_Figure 5 .1 Linear progression graph showing the predicted house price based on location and size._
+
+Loading Previous Models
+
+In this section, you will learn how to load a saved model from your desktop and work with
+the dataset. This allows you to use customized data for predictions. Simply locate the saved
+file on your desktop, load it into the app, and start processing the dataset for predictions.
+
+To load model:
+
+1. From the PredictEase interface, select **Load Model**.
+2. The **File Explorer** dialog will open.
+3. Select a previously saved file
+4. Select **Open** > **OK**.
+    The previously generated model will display.
+
+
+### Readme File
+
+
+Additional Information
+
+This section will guide you through the contribution process to ensure a smooth and
+effective experience.
+
+Contributing to PredictEase Guidelines
+
+Thank you, for your interest in contributing to PredictEase! Your insights and expertise are
+invaluable in helping us improve our platform and resources.
+To ensure a smooth and effective contribution process, please follow these guidelines:
+
+Contribution Process
+
+1. Fork the repository making sure, not to cover any code in the main branch.
+2. Create a new branch for your features or bug fixes.
+3. Make the necessary changes, then commit to your branch.
+4. Submit a pull request. We will notify the creators and contact you when the request
+is confirmed or if more information is needed before approving the changes.
+
+Reporting Issues
+
+If you encounter an issue while using the PredictEase App, we encourage you to report it
+here so we can address it promptly.
+
+Acknowledgements
+
+We could not have developed and succeeded with the PredictEase App without the
+invaluable contributions of several individuals. We extend our heartfelt gratitude to:
+
+**Program Co-ordinator and Instructor**
+
+- **Amy Briggs** , Seneca Polytechnic: For her guidance and dedication to fostering
+    innovation and excellence in the Technical Communication Graduate Program.
+
+**Subject Matter Expert**
+
+- **Dr. Alberto José Alvarellos González** , Universidade da Coruña: For sharing his
+    expertise in Computer Science and Artificial Intelligence, offering valuable direction
+    and encouragement.
+
+
+### Readme File
+
+
+**Development Team**
+A sincere thank you to the developers for their hard work, creativity, and commitment to
+bringing PredictEase to life.
+
+**Alvaro Carpio (Universidade da Coruña)**
+Role: Developer
+
+- Focused on backend functionalities, including data validation and regression
+    algorithms.
+- Contributed to interface improvements, including enhancing the user experience
+    (UX) and user interface (UI) design.
+- Responsible for organizing the codebase and improving its modularity and
+    maintainability.
+
+**Alba González Peña (Universidade da Coruña)**
+Role: Code Structure Specialist
+
+- Responsible for organizing the codebase and improving its modularity and
+    maintainability.
+- Focused on backend functionalities, including data validation and regression
+    algorithms.
+- Contributed to interface improvements, including enhancing the user experience
+    (UX) and user interface (UI) design.
+
+**Irene Tembrás Díaz (Universidade da Coruña)**
+Role: Library Researcher
+
+**‘PredictEase’ Application GitHub Documentation** Number: EFGH- 529 Version: 1.
+
+- Conducted research to identify and select appropriate ML libraries for the project.
+- Implemented prediction functionalities based on the chosen libraries.
+- Contributed to interface improvements and code structuring
+- Assisted with project documentation, ensuring clarity and consistency.
+
+**Nawfal Heiloua (Universidade da Coruña)**
+Role: Developer and Scrum Leader
+
+- Facilitated team meetings, sprint planning, and retrospectives to maintain alignment
+    with Agile methodologies.
+- Focused on backend functionalities, including data validation and regression
+    algorithms.
+
+
+### Readme File
+
+- Assisted with project documentation, ensuring clarity and consistency.
+
+We are deeply grateful to everyone who contributed to this journey. Your support and
+collaboration have been instrumental in making PredictEase a reality. Thank you!
+
+**Hope you enjoy using the software!**
+
+
+### Readme File
+
+
+**Glossary Terms**
+
+**Technical Terms and Definitions**
+
+- **PredictEase**
+
+A Python-based platform designed for regression modeling and data analysis.
+
+- **Regression Models**
+    Models that predict outcomes by analyzing relationships between dependent and
+    independent variables in datasets.
+- **Linear Regression**
+    A method to model the relationship between a dependent variable and one or more
+    independent variables using a straight line.
+- **Model-View-Controller (MVC)**
+A software design pattern that separates an application into:
+
+```
+▪ Model : Data and business logic
+▪ View : User interface (UI)
+▪ Controller : Manages user input and updates the model and view.
+```
+- **Mean Squared Error (MSE)**
+    A measure of model accuracy, calculating the average squared difference between
+    actual and predicted outcomes.
+- **R² (Coefficient of Determination)**
+    A statistical metric that indicates how well independent variables predict the
+    dependent variable, ranging from 0 (poor) to 1 (perfect).
+- **GitHub**
+    A platform for version control and collaboration, using Git to manage code changes.
+- **Visual Studio Code**
+    A free, open-source code editor that supports multiple programming languages and
+    integrates with version control systems.
+- **Cross-Platform Compatibility**
+    The ability of software to run on different operating systems (Windows, macOS,
+    Linux) without modification.
+- **Preprocessing**
+    The process of cleaning, transforming, and organizing data before analysis, including
+    handling missing values and normalizing data.
+- **Null Data**
+    Missing or empty data points in a dataset that can affect the results of a model if not
+    properly handled.
+
+
+### Readme File
+
+- **Data Dropdown**
+    A user interface element that provides options for handling missing or null data in a
+    dataset, such as filling missing values with the mean, median, or a constant value.
+- **Prediction Dropdown**
+    A menu within the software that allows users to make predictions using a loaded
+    regression model.
+- **File Dialog Box**
+    A window that allows users to navigate through directories and select files for
+    loading into the software.
+- **Save Model Button**
+    A feature that allows users to save their created or modified models for future use or
+    reference.
+- **Preprocessing**
+    The process of cleaning and preparing data for use in a model, which may involve
+    handling missing values, scaling, or transforming data.
+- **Fork the Repository**
+    A version control term, referring to making a copy of the code repository to work on
+    independently before submitting changes.
+- **Pull Request**
+    A request to merge changes from one branch of a code repository into the main
+    branch after the changes have been reviewed.
+- **Continuous Analysis**
+    The process of ongoing examination and refinement of data and models as new data
+    is introduced or as performance improves.
 
