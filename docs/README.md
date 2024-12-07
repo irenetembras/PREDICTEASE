@@ -14,7 +14,8 @@ Polytechnic in Toronto, Canada, and Universidade da Coruña in Spain, this tool 
 ## Readme File
 
 
-- About this User Guide ____________________________________________________________ Table of Contents
+-Table of Contents
+- About this User Guide ____________________________________________________________ 
 - Overview _______________________________________________________________________
       - Project Features ______________________________________________________________________
 - Getting Started __________________________________________________________________
