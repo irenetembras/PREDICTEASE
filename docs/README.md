@@ -15,32 +15,34 @@ Polytechnic in Toronto, Canada, and Universidade da Coruña in Spain, this tool 
 
 
 -Table of Contents
-- About this User Guide ____________________________________________________________ 
-- Overview _______________________________________________________________________
-      - Project Features ______________________________________________________________________
-- Getting Started __________________________________________________________________
-      - Hardware/System Requirements ________________________________________________________
-         - Operating System-Specific Requirements ________________________________________________________
-         - General Hardware Requirements _______________________________________________________________
-- Navigating the PredictEase Interface _______________________________________________
-      - Overview of User Interface Components _____________________________________________
-         - Loading a Model Interface ____________________________________________________________________
-         - Model Generating Interface __________________________________________________________________
-         - Graph Interface _____________________________________________________________________________
-- Functions and Usage of PredictEase ________________________________________________
-      - Using PredictEase _____________________________________________________________________
-      - Opening Data Files ____________________________________________________________________
-      - Entering a Model Description ___________________________________________________________
-      - Building the Model ____________________________________________________________________
-      - Processing and Saving Model ___________________________________________________________
-      - Predicting Values from Data Files ______________________________________________________
-      - Loading Previous Models _____________________________________________________________
-- Additional Information __________________________________________________________
-      - Contributing to PredictEase Guidelines _________________________________________________
-      - Contribution Process _________________________________________________________________
-      - Reporting Issues _____________________________________________________________________
-      - Acknowledgements __________________________________________________________________
-- Glossary Terms _________________________________________________________________
+
+Table of Contents	
+About this User Guide	2
+Overview	2
+Project Features	2
+Getting Started	3
+Hardware/System Requirements	3
+Operating System-Specific Requirements	3
+General Hardware Requirements	3
+PredictEase Interface Navigation	4
+Overview of User Interface Components	4
+Loading a Model Interface	4
+Model Generating Interface	5
+Graph Interface	7
+Functions and Usage of PredictEase	8
+Using PredictEase	8
+Opening Data Files	8
+Entering a Model Description	9
+Building the Model	9
+Processing and Saving Model	10
+Predicting Values from Data Files	10
+Loading Previous Models	12
+Additional Information	12
+Contributing to PredictEase Guidelines	12
+Contribution Process	12
+Reporting Issues	12
+Acknowledgements	13
+Glossary Terms	15
 
 
 ### Readme File
