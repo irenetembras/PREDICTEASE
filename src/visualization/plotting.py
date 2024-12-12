@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 
-def plot_regression_line(X, y, predictions, input_var, output_var, parent_frame):
+def plot_regression_line(X, y, predictions,
+                         input_var, output_var, parent_frame):
     """
     Plots the regression line and data points.
 
