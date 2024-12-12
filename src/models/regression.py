@@ -6,7 +6,8 @@ from sklearn.metrics import mean_squared_error, r2_score
 
 class LinearRegressionModel:
     """
-    A wrapper class for sklearn's LinearRegression to encapsulate model training and evaluation.
+    A wrapper class for sklearn's LinearRegression 
+    to encapsulate model training and evaluation.
     """
 
     def __init__(self):
