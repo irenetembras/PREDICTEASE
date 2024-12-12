@@ -1,6 +1,5 @@
 # src/data/data_handler.py
 
-import pandas as pd
 from tkinter import messagebox, simpledialog
 
 
@@ -35,7 +34,9 @@ def handle_nan_values(df, option):
                     return None, "Invalid constant value entered."
 
             # Select numeric columns
-            numeric_columns = df.select_dtypes(include=['float64', 'int64']).columns
+            numeric_columns = df.select_dtypes(
+                                               include=['float64',
+                                                        'int64']).columns
             for col in numeric_columns:
                 if option == "2":  # Fill with mean
                     mean_value = df[col].mean()

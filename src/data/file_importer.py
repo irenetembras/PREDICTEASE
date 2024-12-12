@@ -29,13 +29,15 @@ def read_sqlite_or_db(file_path):
 
 
 def validate_dataframe(data_frame):
-    """Helper function to validate that the DataFrame is not empty and has valid data types."""
+    """Helper function to validate that the
+    DataFrame is not empty and has valid data types."""
     if data_frame.empty:
         raise ValueError("The file does not contain any data.")
 
     # Validate that the DataFrame columns contain valid data types.
     for col in data_frame.columns:
-        if not pd.api.types.is_numeric_dtype(data_frame[col]) and not pd.api.types.is_string_dtype(data_frame[col]):
+        if not (pd.api.types.is_numeric_dtype(data_frame[col]) or
+                pd.api.types.is_string_dtype(data_frame[col])):
             raise ValueError("The file contains malformed or unreadable data.")
 
 
@@ -45,7 +47,8 @@ def import_file(file_path):
     Handles cases where the file is corrupted, empty, or incompatible.
     """
     try:
-        # Extract the file extension and determine the appropriate reader function.
+        # Extract the file extension and determine
+        # the appropriate reader function.
         extension = file_path.split('.')[-1].lower()
 
         if extension == 'csv':
