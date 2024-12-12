@@ -35,7 +35,8 @@ def show_loading_indicator(root, message):
     label.pack(pady=30)
 
     # Create and pack the progress bar
-    progress = ttk.Progressbar(loading_window, mode='indeterminate', length=400)
+    progress = ttk.Progressbar(loading_window, mode='indeterminate',
+                               length=400)
     progress.pack(pady=20)
     progress.start(10)  # Adjust the speed as needed
 

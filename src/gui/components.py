@@ -1,7 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
 
-def create_menu_button(parent, text, menu_items, font_style, bg, fg, activebackground, activeforeground):
+
+def create_menu_button(parent, text, menu_items, font_style,
+                       bg, fg, activebackground, activeforeground):
     """Creates a Menubutton with the given menu items."""
     menu_button = tk.Menubutton(
         parent,
@@ -26,6 +28,7 @@ def create_menu_button(parent, text, menu_items, font_style, bg, fg, activebackg
     menu_button.config(menu=menu)
     return menu_button
 
+
 def create_label(parent, text, font_style, bg, fg):
     """Creates a Label."""
     label = tk.Label(
@@ -37,14 +40,17 @@ def create_label(parent, text, font_style, bg, fg):
     )
     return label
 
-def create_frame(parent, bg, side=None, fill=None, expand=False, padx=0, pady=0):
+
+def create_frame(parent, bg, side=None, fill=None,
+                 expand=False, padx=0, pady=0):
     """Creates a Frame."""
     frame = tk.Frame(parent, bg=bg)
     if side:
-        frame.pack(side=side, fill=fill, expand=expand, padx=padx, pady= pady)
+        frame.pack(side=side, fill=fill, expand=expand, padx=padx, pady=pady)
     else:
         frame.pack(fill=fill, expand=expand, padx=padx, pady=pady)
     return frame
+
 
 def create_button(parent, text, command, font_style, bg, fg, activebackground):
     """Creates a Button."""
@@ -59,15 +65,18 @@ def create_button(parent, text, command, font_style, bg, fg, activebackground):
     )
     return button
 
+
 def create_combobox(parent, state="readonly"):
     """Creates a Combobox."""
     combobox = ttk.Combobox(parent, state=state)
     return combobox
 
+
 def create_text(parent, height, width):
     """Creates a Text widget."""
     text_widget = tk.Text(parent, height=height, width=width)
     return text_widget
+
 
 def create_treeview(parent, columns, headings, column_widths, height):
     """Creates a Treeview."""
