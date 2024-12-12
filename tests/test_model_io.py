@@ -23,7 +23,9 @@ class TestModelIO(unittest.TestCase):
             'formula': self.model.get_formula('X', 'y'),
             'metrics': {
                 'R²': self.model.r2_score(self.y, self.model.predict(self.X)),
-                'MSE': self.model.mean_squared_error(self.y, self.model.predict(self.X))
+                'MSE':
+                self.model.mean_squared_error(self.y,
+                                              self.model.predict(self.X))
             },
             'model': self.model
         }
@@ -40,12 +42,18 @@ class TestModelIO(unittest.TestCase):
     def test_load_model_data(self):
         save_model_data(self.model_data, self.file_path)
         loaded_model_data = load_model_data(self.file_path)
-        self.assertEqual(loaded_model_data['input_column'], self.model_data['input_column'])
-        self.assertEqual(loaded_model_data['output_column'], self.model_data['output_column'])
-        self.assertEqual(loaded_model_data['model_description'], self.model_data['model_description'])
-        self.assertEqual(loaded_model_data['formula'], self.model_data['formula'])
-        self.assertAlmostEqual(loaded_model_data['metrics']['R²'], self.model_data['metrics']['R²'], places=5)
-        self.assertAlmostEqual(loaded_model_data['metrics']['MSE'], self.model_data['metrics']['MSE'], places=5)
+        self.assertEqual(loaded_model_data['input_column'],
+                         self.model_data['input_column'])
+        self.assertEqual(loaded_model_data['output_column'],
+                         self.model_data['output_column'])
+        self.assertEqual(loaded_model_data['model_description'],
+                         self.model_data['model_description'])
+        self.assertEqual(loaded_model_data['formula'],
+                         self.model_data['formula'])
+        self.assertAlmostEqual(loaded_model_data['metrics']['R²'],
+                               self.model_data['metrics']['R²'], places=5)
+        self.assertAlmostEqual(loaded_model_data['metrics']['MSE'],
+                               self.model_data['metrics']['MSE'], places=5)
         # Test the loaded model's prediction
         loaded_model = loaded_model_data['model']
         predictions = loaded_model.predict(self.X)

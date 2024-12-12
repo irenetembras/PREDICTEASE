@@ -40,7 +40,8 @@ class TestDataHandler(unittest.TestCase):
     def test_fill_with_constant(self):
         # Mock the simpledialog to return a constant value
         from unittest.mock import patch
-        with patch('src.data.data_handler.simpledialog.askstring', return_value='10'):
+        with patch('src.data.data_handler.simpledialog.askstring',
+                   return_value='10'):
             df_processed, message = handle_nan_values(self.df.copy(), "4")
         expected_df = self.df.copy()
         expected_df['A'] = expected_df['A'].fillna(10)
