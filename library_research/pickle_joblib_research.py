@@ -19,7 +19,8 @@ with open('model_pickle.pkl', 'rb') as file:
     loaded_model_pickle = pickle.load(file)
 
 # Prediction test with the model loaded using Pickle
-print("Prediction using model loaded with Pickle:", loaded_model_pickle.predict([[6]]))
+print("Prediction using model loaded with Pickle:",
+      loaded_model_pickle.predict([[6]]))
 
 
 # 3. Save and load the model using Joblib
@@ -30,4 +31,5 @@ joblib.dump(model, 'model_joblib.pkl')
 loaded_model_joblib = joblib.load('model_joblib.pkl')
 
 # Prediction test with the model loaded using Joblib
-print("Prediction using model loaded with Joblib:", loaded_model_joblib.predict([[6]]))
+print("Prediction using model loaded with Joblib:",
+      loaded_model_joblib.predict([[6]]))
