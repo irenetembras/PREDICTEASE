@@ -44,18 +44,20 @@ class DataLoaderApp:
 
         # Welcome message
         messagebox.showinfo(
-            "Welcome to Data Loader",
-            "Welcome to the Data Loader application!\n\n"
+            "Welcome to PredictEase",
+            "Welcome to the PredictEase application!\n\n"
             "This tool allows you to:\n"
             "1. Load and Visualize Data\n"
             "2. Manage Missing Values\n"
             "3. Create Linear Regression Models\n"
-            "4. Save and Load Models\n\n"
+            "4. Save and Load Models\n"
+            "5. Make a Prediction\n\n"
             "To get started:\n"
             "- Navigate to the 'File' menu to load a dataset or an existing model.\n"
             "- Use the 'Data' menu to preprocess your data.\n"
             "- In the 'Regression Controls' section, select your desired columns and create a regression model.\n"
-            "- Save your model using the 'Save Model' button for future reference."
+            "- Save your model using the 'Save Model' button for future reference.\n"
+            "- Use the 'Prediction' menu to make a prediction using your model."
         )
 
     def build_toolbar(self):
