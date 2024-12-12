@@ -4,6 +4,7 @@ import os
 import threading
 import tkinter as tk
 from tkinter import filedialog, messagebox, simpledialog, ttk
+import pandas as pd
 
 from src.data.file_importer import import_file
 from src.data.data_handler import handle_nan_values
@@ -23,7 +24,7 @@ class DataLoaderApp:
     def __init__(self, root):
         root.state('zoomed')
         self.root = root
-        self.root.title("Data Loader")
+        self.root.title("PredictEase")
         self.root.configure(bg="#f0f0f0")
         self.font_style = ("Helvetica", 10)
 
@@ -229,10 +230,24 @@ class DataLoaderApp:
             if not self.df.columns.any() or self.df.dropna(how='all').empty:
                 raise ValueError("The imported file has only empty columns or rows.")
 
+            if self.df.isnull().values.any():
+                nan_counts = self.df.isnull().sum()
+                nan_columns = nan_counts[nan_counts > 0].index.tolist()
+                total_nans = nan_counts.sum()
+                message = (
+                    f"The dataset contains {total_nans} missing values "
+                    f"in columns: {', '.join(nan_columns)}"
+                )
+                self.root.after(0, lambda: messagebox.showinfo("Missing Values Detected", message))
+
             # Update UI components
             self.root.after(0, self.display_data)
             self.root.after(0, self.populate_selectors)
             self.root.after(0, lambda: messagebox.showinfo("Success", "File loaded successfully."))
+
+        except (pd.errors.ParserError, pd.errors.EmptyDataError, ValueError):
+            error_message = "Invalid or corrupted file."
+            self.root.after(0, lambda: messagebox.showerror("Error", error_message))
 
         except Exception as e:
             error_message = f"An error occurred: {str(e)}"
