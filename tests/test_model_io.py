@@ -6,7 +6,7 @@ from src.models.model_io import save_model_data, load_model_data
 from src.models.regression import LinearRegressionModel
 import numpy as np
 
-
+ 
 class TestModelIO(unittest.TestCase):
 
     def setUp(self):

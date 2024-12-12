@@ -4,6 +4,7 @@ import os
 import threading
 import tkinter as tk
 from tkinter import filedialog, messagebox, simpledialog, ttk
+import pandas as pd
 
 from src.data.file_importer import import_file
 from src.data.data_handler import handle_nan_values
@@ -23,7 +24,7 @@ class DataLoaderApp:
     def __init__(self, root):
         root.state('zoomed')
         self.root = root
-        self.root.title("Data Loader")
+        self.root.title("PredictEase")
         self.root.configure(bg="#f0f0f0")
         self.font_style = ("Helvetica", 10)
 
@@ -44,18 +45,20 @@ class DataLoaderApp:
 
         # Welcome message
         messagebox.showinfo(
-            "Welcome to Data Loader",
-            "Welcome to the Data Loader application!\n\n"
+            "Welcome to PredictEase",
+            "Welcome to the PredictEase application!\n\n"
             "This tool allows you to:\n"
             "1. Load and Visualize Data\n"
             "2. Manage Missing Values\n"
             "3. Create Linear Regression Models\n"
-            "4. Save and Load Models\n\n"
+            "4. Save and Load Models\n"
+            "5. Make a Prediction\n\n"
             "To get started:\n"
             "- Navigate to the 'File' menu to load a dataset or an existing model.\n"
             "- Use the 'Data' menu to preprocess your data.\n"
             "- In the 'Regression Controls' section, select your desired columns and create a regression model.\n"
-            "- Save your model using the 'Save Model' button for future reference."
+            "- Save your model using the 'Save Model' button for future reference.\n"
+            "- Use the 'Prediction' menu to make a prediction using your model."
         )
 
     def build_toolbar(self):
@@ -227,10 +230,24 @@ class DataLoaderApp:
             if not self.df.columns.any() or self.df.dropna(how='all').empty:
                 raise ValueError("The imported file has only empty columns or rows.")
 
+            if self.df.isnull().values.any():
+                nan_counts = self.df.isnull().sum()
+                nan_columns = nan_counts[nan_counts > 0].index.tolist()
+                total_nans = nan_counts.sum()
+                message = (
+                    f"The dataset contains {total_nans} missing values "
+                    f"in columns: {', '.join(nan_columns)}"
+                )
+                self.root.after(0, lambda: messagebox.showinfo("Missing Values Detected", message))
+
             # Update UI components
             self.root.after(0, self.display_data)
             self.root.after(0, self.populate_selectors)
             self.root.after(0, lambda: messagebox.showinfo("Success", "File loaded successfully."))
+
+        except (pd.errors.ParserError, pd.errors.EmptyDataError, ValueError):
+            error_message = "Invalid or corrupted file."
+            self.root.after(0, lambda: messagebox.showerror("Error", error_message))
 
         except Exception as e:
             error_message = f"An error occurred: {str(e)}"
