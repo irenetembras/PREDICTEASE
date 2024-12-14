@@ -22,57 +22,59 @@ Description automatically generated]</h1></th></tr>
 Description automatically generated]
 #
 # <a name="_toc184170860"></a>**Table of Contents**	
-[About this User Guide	2******](#_toc184204601)***
+[About this User Guide](#_toc184204601)
 
-[***Overview	2******](#_toc184204602)
+[**Overview**](#_toc184204602)
 
-[**Project Features	2****](#_toc184204603)
+[**Project Features**](#_toc184204603)
 
-[***Getting Started	3******](#_toc184204604)
+[**Installing PredictEase**](#_toc184204604)
 
-[**Hardware/System Requirements	3****](#_toc184204605)
+[**Getting Started**](#_toc184204605)
 
-[Operating System-Specific Requirements	3](#_toc184204606)
+[**Hardware/System Requirements**](#_toc184204606)
 
-[General Hardware Requirements	3](#_toc184204607)
+[Operating System-Specific Requirements](#_toc184204607)
 
-[***PredictEase Interface Navigation	4******](#_toc184204608)
+[General Hardware Requirements](#_toc184204608)
 
-[**Overview of User Interface Components	4****](#_toc184204609)
+[**PredictEase Interface Navigation**](#_toc184204609)
 
-[Loading a Model Interface	4](#_toc184204610)
+[**Overview of User Interface Components**](#_toc184204610)
 
-[Model Generating Interface	5](#_toc184204611)
+[Loading a Model Interface](#_toc184204611)
 
-[Graph Interface	7](#_toc184204612)
+[Model Generating Interface](#_toc184204612)
 
-[***Functions and Usage of PredictEase	8******](#_toc184204613)
+[Graph Interface](#_toc184204613)
 
-[**Using PredictEase	8****](#_toc184204614)
+[**Functions and Usage of PredictEase**](#_toc184204614)
 
-[**Opening Data Files	8****](#_toc184204615)
+[**Using PredictEase**](#_toc184204615)
 
-[**Entering a Model Description	9****](#_toc184204616)
+[**Opening Data Files**](#_toc184204616)
 
-[**Building the Model	9****](#_toc184204617)
+[**Entering a Model Description**](#_toc184204617)
 
-[**Processing and Saving Model	10****](#_toc184204618)
+[**Building the Model**](#_toc184204618)
 
-[**Predicting Values from Data Files	10****](#_toc184204619)
+[**Processing and Saving Model**](#_toc184204619)
 
-[**Loading Previous Models	12****](#_toc184204620)
+[**Predicting Values from Data Files**](#_toc184204620)
 
-[***Additional Information	12******](#_toc184204621)
+[**Loading Previous Models**](#_toc184204621)
 
-[**Contributing to PredictEase Guidelines	12****](#_toc184204622)
+[**Additional Information**](#_toc184204622)
 
-[**Contribution Process	12****](#_toc184204623)
+[**Contributing to PredictEase Guidelines**](#_toc184204623)
 
-[**Reporting Issues	12****](#_toc184204624)
+[**Contribution Process**](#_toc184204624)
 
-[**Acknowledgements	13****](#_toc184204625)
+[**Reporting Issues**](#_toc184204625)
 
-[***Glossary Terms	15******](#_toc184204626)
+[**Acknowledgements**](#_toc184204626)
+
+[**Glossary Terms**](#_toc184204627)
 
 
 
@@ -94,14 +96,65 @@ In this section, you will discover the key features of PredictEase ([as shown in
 |**Model Management**|<p>- Save and load models for ongoing analysis or future reference.</p><p>- Export model reports in PDF or Excel formats for easy sharing and presentation.</p>|
 |**User-Friendly Interface**|<p>- Simple, intuitive design for easy navigation.</p><p>- Step-by-step guidance through Model Generating Interface and analysis.</p>|
 
-***Table 1.1: Project Features***
-# <a name="_toc183984990"></a><a name="_toc184170862"></a><a name="_toc184183337"></a><a name="_toc184204604"></a>**Getting Started**
+# <a name="_toc184203257"></a>**Installing and Setting Up PredictEase**
+Install and configure PredictEase to run the Linear Regression model. This includes installing Python, setting up an IDE (optional), and installing necessary Python libraries.
+## <a name="_toc184203258"></a>Installing Python
+To run the PredictEase using Python ensure to follow the steps:
+
+1. Download Python from the [official Python website](https://www.python.org/).
+1. Open the downloaded Python installer.
+1. Choose **Custom Installation** in the setup wizard.
+1. Check the following options:
+   1. Add Python to environment variables
+   1. Install pip
+1. Select **Install** to complete the setup.
+
+Python is installed and ready to use.
+
+## <a name="_toc184203259"></a>Using an Integrated Development Environment (IDE)
+Although not required, an IDE like Visual Studio Code (VS Code) can simplify development with helpful features such as syntax highlighting, debugging tools, and project organization.
+
+**Setting up VS Code for Python**:
+
+1. Restart VS Code after installing Python.
+1. Install the Python extension in VS Code:
+   1. Select **Extensions** from the left navigation bar.
+   1. Search for **ms-python.python** and install the extension.
+
+VS Code is configured for Python development.
+
+**Installing Python Libraries**
+
+Install the required libraries for PredictEase. Use a terminal, such as:
+
+- Command Prompt (Windows)
+- PowerShell (Windows)
+- Terminal (macOS)
+- VS Code Terminal
+
+**Steps**:
+
+1. Open your terminal and navigate to the **PREDICTEASE** folder.
+1. Run the following commands one by one, pressing Enter after each:
+
+Copy code
+
+- pip install pandas (in the terminal)
+- 'pip install scikit-learn (in the terminal)
+
+All required libraries are installed.
+
+1. And then execute the main.py file.
+
+The graphical interface is now ready to be used.  
+
+# <a name="_toc183984990"></a><a name="_toc184170862"></a><a name="_toc184183337"></a><a name="_toc184204605"></a>**Getting Started**
 Welcome to PredictEase – an easy-to-use tool for data analysis and regression modelling, created through a collaboration between Seneca Polytechnic (Canada) and Universidade da Coruña (Spain) as part of the COIL Project.
 
 With PredictEase, you can upload data, analyze it, visualize results, and manage regression models on a user-friendly Python-powered platform, making data-driven decisions simple for everyone, from beginners to experts.
-## <a name="_toc183984992"></a><a name="_toc184170863"></a><a name="_toc184183338"></a><a name="_toc184204605"></a>Hardware/System Requirements
+## <a name="_toc183984992"></a><a name="_toc184170863"></a><a name="_toc184183338"></a><a name="_toc184204606"></a>Hardware/System Requirements
 To use PredictEase effectively, [(see. Table 2.1 and Table 2.2)](#_operating_system-specific_requireme) ensure your system meets the following hardware and software requirements:
-### <a name="_operating_system-specific_requireme"></a><a name="_toc184183339"></a><a name="_toc184204606"></a>Operating System-Specific Requirements
+### <a name="_operating_system-specific_requireme"></a><a name="_toc184183339"></a><a name="_toc184204607"></a>Operating System-Specific Requirements
 
 |**Operating System**|**Version**|
 | :- | :- |
@@ -110,7 +163,7 @@ To use PredictEase effectively, [(see. Table 2.1 and Table 2.2)](#_operating_sys
 |Linux|Ubuntu 20.04 or equivalent|
 
 ***Table 2.1: System requirements for Mac and Windows devices.***
-### <a name="_toc184183340"></a><a name="_toc184204607"></a>General Hardware Requirements
+### <a name="_toc184183340"></a><a name="_toc184204608"></a>General Hardware Requirements
 
 |**Component**|**Requirement**|
 | :- | :- |
@@ -128,9 +181,9 @@ To use PredictEase effectively, [(see. Table 2.1 and Table 2.2)](#_operating_sys
 - **Environment**: A stable and secure computing environment is recommended to avoid data loss or application interruptions.
 
   For installation guidance and troubleshooting, refer to the [**docs**](https://github.com/irenetembras/PROJECT-GROUP-8/tree/main/docs) section of the user documentation.
-# <a name="_toc184170864"></a><a name="_toc184183341"></a><a name="_toc184204608"></a>**PredictEase Interface Navigation**
+# <a name="_toc184170864"></a><a name="_toc184183341"></a><a name="_toc184204609"></a>**PredictEase Interface Navigation**
 <a name="_toc184170865"></a>PredictEase has a simple, intuitive interface designed to help you create, manage, and visualize regression models. 
-## <a name="_toc184183342"></a><a name="_toc184204609"></a>Overview of User Interface Components
+## <a name="_toc184183342"></a><a name="_toc184204610"></a>Overview of User Interface Components
 The user interface is designed to provide a seamless experience for building, managing, and visualizing models. It is organized into three key components:
 
 The user interface contains three parts: 
@@ -138,7 +191,7 @@ The user interface contains three parts:
 - Loading a model interface 
 - Model generating interface 
 - Graph interface  
-### <a name="_loading_a_model"></a><a name="_toc184183343"></a><a name="_toc184204610"></a>Loading a Model Interface 
+### <a name="_loading_a_model"></a><a name="_toc184183343"></a><a name="_toc184204611"></a>Loading a Model Interface 
 The "Loading a Model" interface (see [Figure 1.1](#_loading_a_model) for more details) lets you upload and manage pre-saved models. The key features and button positions are as follows:
 
 `  `**File Dropdown**
@@ -148,7 +201,7 @@ The "Loading a Model" interface (see [Figure 1.1](#_loading_a_model) for more de
 - Exit
 
 [***Figure 1.1 Loading Model Interface***](#_loading_a_model)
-### <a name="_model_generating_interface"></a><a name="_toc184183344"></a><a name="_toc184204611"></a>Model Generating Interface
+### <a name="_model_generating_interface"></a><a name="_toc184183344"></a><a name="_toc184204612"></a>Model Generating Interface
 The **Model Generating Interface** (see [Figure 2.1](#_model_generating_interface) for more details)  provides tools for creating and refining your models. Key features include:
 
 - Input and Output Dropdowns (left-top)
@@ -235,7 +288,7 @@ A data analyst prepares a dataset for analysis and notices several empty cells. 
 The dataset is now consistent and ready for analysis. The missing values are handled based on the selected strategy, ensuring the integrity of the results.
 
 The Data Dropdown gives users control over missing data, streamlining data preparation.
-### <a name="_graph_interface"></a><a name="_toc184183345"></a><a name="_toc184204612"></a>Graph Interface 
+### <a name="_graph_interface"></a><a name="_toc184183345"></a><a name="_toc184204613"></a>Graph Interface 
 The **Graph Interface** in the Dataloader app enables users to visualize data and model predictions clearly and interactively. It supports types of graphical representations, helping users analyze the dataset and model outcomes efficiently. 
 
 **Graph Area (Center of the Interface) [(See. Figure 4.1)**](#_graph_interface)**
@@ -262,12 +315,12 @@ Description automatically generated](Aspose.Words.ab4286bc-6a0e-4f87-9126-b90094
 Description automatically generated](Aspose.Words.ab4286bc-6a0e-4f87-9126-b90094db08d4.011.png)
 
 <a name="_toc184183346"></a>*Figure 4.2 Prediction dropdown*
-# <a name="_toc184204613"></a>Functions and Usage of PredictEase
+# <a name="_toc184204614"></a>Functions and Usage of PredictEase
 This section describes how to use PredictEase functions to build a linear regression model. 
-## <a name="_toc184183347"></a><a name="_toc184204614"></a>Using PredictEase
+## <a name="_toc184183347"></a><a name="_toc184204615"></a>Using PredictEase
 To use PredictEase, make sure your data file is up to date and all data is correctly defined. You can use PredictEase to process and save data sets, generate models for data analysis and prediction, and reload saved models for continuous analysis and customization. 
 
-## <a name="_toc184170867"></a><a name="_toc184183348"></a><a name="_toc184204615"></a>Opening Data Files 
+## <a name="_toc184170867"></a><a name="_toc184183348"></a><a name="_toc184204616"></a>Opening Data Files 
 To start using PredictEase open the data file. PredictEase works with CSV, Microsoft Excel, SQLite, .db and .xls
 
 To open the data file: 
@@ -285,7 +338,7 @@ A file dialog box opens to choose the dataset file.
 ##
 ##
 
-## <a name="_toc184183349"></a><a name="_entering_a_model"></a><a name="_toc184204616"></a>Entering a Model Description 
+## <a name="_toc184183349"></a><a name="_entering_a_model"></a><a name="_toc184204617"></a>Entering a Model Description 
 After opening the compatible data file in the software, you will now process the data. 
 
 1. Locate the **Input Column** (independent variables) dropdown menu on the left of the home screen. 
@@ -301,7 +354,7 @@ After opening the compatible data file in the software, you will now process the
 |**Important: Models cannot be generated if there are null data present. A Warning sign shows if you have null data. See Processing and Saving Model for more details on editing null data.**|
 | :- |
 ##
-## <a name="_toc184170869"></a><a name="_toc184183350"></a><a name="_toc184204617"></a>Building the Model
+## <a name="_toc184170869"></a><a name="_toc184183350"></a><a name="_toc184204618"></a>Building the Model
 Generate and visualize the regression model using the selected variables.
 
 1. Confirm the set input and output variable. 
@@ -322,7 +375,7 @@ The regression model is visualized, and key metrics are displayed.
 ##
 ##
 
-## <a name="_toc184170870"></a><a name="_toc184183351"></a><a name="_toc184204618"></a>Processing and Saving Model
+## <a name="_toc184170870"></a><a name="_toc184183351"></a><a name="_toc184204619"></a>Processing and Saving Model
 This section guides you in processing and saving your regression model for future use. Define input and output variables, generate the model, evaluate its performance, and save it for reuse.
 
 To process and save a file after creating the model: 
@@ -340,7 +393,7 @@ To process and save a file after creating the model:
 1. Click **Ok.**
 
 `       `The model is processed and saved successfully**.**
-## <a name="_toc184170871"></a><a name="_toc184183352"></a><a name="_toc184204619"></a>Predicting Values from Data Files
+## <a name="_toc184170871"></a><a name="_toc184183352"></a><a name="_toc184204620"></a>Predicting Values from Data Files
 This section shows how to predict values using your data files in PredictEase. Load a data file, select input variables, and generate predictions with your regression model.
 
 To predict a value: 
@@ -398,7 +451,7 @@ To predict a value:
 Description automatically generated](Aspose.Words.ab4286bc-6a0e-4f87-9126-b90094db08d4.012.jpeg)
 
 <a name="_toc184170872"></a><a name="_toc184183353"></a>*Figure 5.1 Linear progression graph showing the predicted house price based on location and size.*
-## <a name="_toc184204620"></a>Loading Previous Models 
+## <a name="_toc184204621"></a>Loading Previous Models 
 In this section, you will learn how to load a saved model from your desktop and work with the dataset. This allows you to use customized data for predictions. Simply locate the saved file on your desktop, load it into the app, and start processing the dataset for predictions. 
 
 To load model: 
@@ -409,23 +462,23 @@ To load model:
 1. Select **Open** > **OK**.
 
    The previously generated model will display. 
-# <a name="_toc184170877"></a><a name="_toc184183354"></a><a name="_toc184204621"></a>Additional Information
+# <a name="_toc184170877"></a><a name="_toc184183354"></a><a name="_toc184204622"></a>Additional Information
 <a name="_toc184170878"></a>This section will guide you through the contribution process to ensure a smooth and effective experience.
-## <a name="_toc184183355"></a><a name="_toc184204622"></a>Contributing to PredictEase Guidelines
+## <a name="_toc184183355"></a><a name="_toc184204623"></a>Contributing to PredictEase Guidelines
 Thank you, for your interest in contributing to PredictEase! Your insights and expertise are invaluable in helping us improve our platform and resources.
 
 To ensure a smooth and effective contribution process, please follow these guidelines:
-## ` `<a name="_toc184183356"></a><a name="_toc184204623"></a>Contribution Process 
+## ` `<a name="_toc184183356"></a><a name="_toc184204624"></a>Contribution Process 
 - Fork the repository** making sure, not to cover any code in the main branch.
 - Create a new branch for your features or bug fixes. 
 - Make the necessary changes, then commit to your branch. 
 - Submit a pull request. We will notify the creators and contact you when the request 	is confirmed or if more information is needed before approving the changes. 
-  ## <a name="_toc184170879"></a><a name="_toc184183357"></a><a name="_toc184204624"></a>Reporting Issues
+  ## <a name="_toc184170879"></a><a name="_toc184183357"></a><a name="_toc184204625"></a>Reporting Issues
   If you encounter an issue while using the PredictEase App, we encourage you to report it here so we can address it promptly.
   ##
   ##
 
-  ## <a name="_toc184170880"></a><a name="_toc184183358"></a><a name="_toc184204625"></a>Acknowledgements 
+  ## <a name="_toc184170880"></a><a name="_toc184183358"></a><a name="_toc184204626"></a>Acknowledgements 
   We could not have developed and succeeded with the PredictEase App without the invaluable contributions of several individuals. We extend our heartfelt gratitude to:
 
   **Program Co-ordinator and Instructor**
@@ -471,7 +524,7 @@ We are deeply grateful to everyone who contributed to this journey. Your support
 
 
 **
-# <a name="_toc184204626"></a>**Glossary Terms**
+# <a name="_toc184204627"></a>**Glossary Terms**
 **Technical Terms and Definitions**
 
 - **PredictEase**
