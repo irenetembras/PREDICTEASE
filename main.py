@@ -1,4 +1,4 @@
-# main.py
+#  main.py
 from src.gui.app import DataLoaderApp
 import tkinter as tk
 
