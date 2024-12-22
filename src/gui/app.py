@@ -6,7 +6,10 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, simpledialog, ttk
 import pandas as pd
 
-# Importing helper functions and classes from your project structure
+# Import de la classe HoverTooltip depuis le nouveau fichier
+from src.gui.hover_tooltip import HoverTooltip
+
+# Import des autres modules internes
 from src.data.file_importer import import_file
 from src.data.data_handler import handle_nan_values
 from src.models.regression import LinearRegressionModel
@@ -14,41 +17,6 @@ from src.models.model_io import save_model_data, load_model_data
 from src.visualization.plotting import plot_regression_line
 from src.visualization.data_display import display_dataframe_in_treeview
 from src.gui.loading_indicator import show_loading_indicator, hide_loading_indicator
-
-
-class HoverTooltip:
-    """
-    A simple tooltip that appears when the mouse hovers over an item.
-    """
-    def __init__(self, parent, text=""):
-        self.parent = parent
-        self.text = text
-        self.tipwindow = None
-
-    def show(self, x, y):
-        """
-        Create a Toplevel window to display the text.
-        Position it near (x, y).
-        """
-        if self.tipwindow or not self.text:
-            return
-        self.tipwindow = tw = tk.Toplevel(self.parent)
-        tw.wm_overrideredirect(True)  # remove window decorations
-        tw.wm_geometry(f"+{x}+{y}")   # position it at (x,y)
-
-        label = tk.Label(
-            tw, text=self.text,
-            bg="lightyellow", fg="black",
-            relief="solid", borderwidth=1,
-            font=("Helvetica", 9)
-        )
-        label.pack(ipadx=1, ipady=1)
-
-    def hide(self):
-        """Destroy the Toplevel if it exists."""
-        if self.tipwindow:
-            self.tipwindow.destroy()
-        self.tipwindow = None
 
 
 class DataLoaderApp:
@@ -261,18 +229,18 @@ class DataLoaderApp:
         row_id = self.results_table.identify_row(event.y)
         col_id = self.results_table.identify_column(event.x)
 
-        # We only want the tooltip on the "Value" column, which is "#2" if we have 2 columns
+        # Nous ne voulons l'infobulle que sur la colonne "Value" (#2)
         if col_id == "#2" and row_id:
-            # Get the full text from the "values" tuple
+            # Récupère le texte complet dans le tuple "values"
             item_values = self.results_table.item(row_id, "values")
             if len(item_values) >= 2:
-                full_text = item_values[1]  # The "Value" is item_values[1]
+                full_text = item_values[1]  # La deuxième valeur = "Value"
 
-                # Calculate the position to show the tooltip (offset slightly)
+                # Calcule la position où afficher l'infobulle (décalage léger)
                 x_root = self.results_table.winfo_rootx() + event.x + 20
                 y_root = self.results_table.winfo_rooty() + event.y + 20
 
-                # Show or update the tooltip
+                # Affiche ou met à jour l'infobulle
                 if not self.tooltip:
                     self.tooltip = HoverTooltip(self.root, text=full_text)
                     self.tooltip.show(x_root, y_root)
@@ -281,11 +249,11 @@ class DataLoaderApp:
                     self.tooltip.hide()
                     self.tooltip.show(x_root, y_root)
             else:
-                # No text -> hide tooltip
+                # Pas de texte -> on masque l'infobulle
                 if self.tooltip:
                     self.tooltip.hide()
         else:
-            # Mouse is not over col #2 or row is invalid -> hide tooltip
+            # Souris hors de la colonne #2 ou ligne invalide -> on masque l'infobulle
             if self.tooltip:
                 self.tooltip.hide()
 
@@ -294,12 +262,10 @@ class DataLoaderApp:
         Create the frame (on the right side) that will hold the graph / plot.
         """
         self.graph_frame_border = tk.Frame(self.root, bg="#cccccc")
-        # 'fill="y"' means it will stretch vertically, but not automatically horizontally
         self.graph_frame_border.pack(side="right", fill="y", padx=10, pady=5)
 
-        # Optionally fix the height or width if needed
         self.graph_frame_border.pack_propagate(False)
-        self.graph_frame_border.config(height=300)  # Adjust as needed
+        self.graph_frame_border.config(height=300)  # Ajuster selon vos besoins
 
         self.graph_frame = tk.Frame(self.graph_frame_border, bg="white")
         self.graph_frame.pack(fill="both", expand=True, padx=5, pady=5)
