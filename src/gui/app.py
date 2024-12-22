@@ -1,15 +1,10 @@
 # src/gui/app.py
-
 import os
 import threading
 import tkinter as tk
 from tkinter import filedialog, messagebox, simpledialog, ttk
 import pandas as pd
-
-# Import de la classe HoverTooltip depuis le nouveau fichier
 from src.gui.hover_tooltip import HoverTooltip
-
-# Import des autres modules internes
 from src.data.file_importer import import_file
 from src.data.data_handler import handle_nan_values
 from src.models.regression import LinearRegressionModel
